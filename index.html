@@ -6392,6 +6392,68 @@ $('#sheetKbX').onclick=()=>composeOff(true);['pointerdown','mousedown'].forEach(
 ['pointerdown','mousedown'].forEach(ev=>$('#sheetX').addEventListener(ev,e=>e.preventDefault()));
 new MutationObserver(()=>{if(!$('#sheet').classList.contains('composing'))document.querySelectorAll('#sheet .ask.multi').forEach(b=>b.classList.remove('multi'))}).observe($('#sheet'),{attributes:true,attributeFilter:['class']});
 
+
+/* ---- Nhận văn bản chia sẻ từ app khác -> tạo ghi chú mới và mở luôn ----
+   Cách gọi từ bên ngoài:
+   1) mở trang với ?text=...&title=...&url=...   (Web Share Target của PWA)
+   2) yumeReceiveShare(text, title)              (native đẩy vào)
+   3) yumeReceiveShareB64(textB64, titleB64)     (như trên, base64 UTF-8)
+   4) YumeAndroid.consumeShare()                 (app tự hỏi native lúc mở, trả JSON {"text","title"}) */
+(()=>{
+  const Q=[];let last={k:'',at:0},emptyShare=false;
+  const clean=v=>String(v==null?'':v).replace(/\r\n?/g,'\n').replace(/\u0000/g,'');
+  const dec=b=>{if(!b)return '';try{return new TextDecoder('utf-8').decode(Uint8Array.from(atob(b),c=>c.charCodeAt(0)))}catch(e){return ''}};
+  function make(text,title){
+    const now=Date.now();
+    const n={id:uid(),title:title||'',content:text,html:esc(text).replace(/\n/g,'<br>'),createdAt:now,updatedAt:now,pinned:false,archived:false,deleted:false,todoItems:[],folderId:''};
+    S.notes.push(n);DB.put(n);
+    openNote(n);
+    toast('Đã nhận văn bản chia sẻ');
+    return n;
+  }
+  function flush(){
+    while(Q.length){const a=Q.shift();try{make(a[0],a[1])}catch(e){try{toast('Không tạo được ghi chú từ nội dung chia sẻ')}catch(_){}}}
+    if(emptyShare){emptyShare=false;try{toast('Lần chia sẻ này không kèm văn bản (có thể là file .txt)')}catch(_){}}
+  }
+  function receive(text,title){
+    text=clean(text).trim();title=clean(title).trim();
+    if(!text&&!title)return false;
+    if(!text){text=title;title=''}
+    const k=title+'\u0001'+text,now=Date.now();
+    if(last.k===k&&now-last.at<4000)return false;
+    last={k:k,at:now};
+    if(window.__yReady&&Array.isArray(S.notes))make(text,title);else Q.push([text,title]);
+    return true;
+  }
+  function pull(){
+    try{
+      const A=window.YumeAndroid;
+      if(A&&typeof A.consumeShare==='function'){
+        const r=A.consumeShare();
+        if(r){const o=typeof r==='string'?JSON.parse(r):r;receive(o.text,o.title)}
+      }
+    }catch(e){}
+  }
+  function fromURL(){
+    try{
+      const u=new URL(location.href),p=u.searchParams;
+      const keys=['text','title','url'];
+      if(!keys.some(k=>p.has(k)))return;
+      let text=p.get('text')||'',title=p.get('title')||'',link=p.get('url')||'';
+      if(!text&&link)text=link;else if(text&&link&&text.indexOf(link)<0)text+='\n'+link;
+      if(!text.trim()&&!title.trim())emptyShare=true;else receive(text,title);
+      keys.forEach(k=>p.delete(k));
+      try{history.replaceState(null,'',u.pathname+(p.toString()?'?'+p.toString():'')+u.hash)}catch(e){}
+    }catch(e){}
+  }
+  window.yumeReceiveShare=receive;
+  window.yumeReceiveShareB64=(t,s)=>receive(dec(t),dec(s));
+  window.yFlushShare=flush;
+  window.addEventListener('yume-share',e=>{const d=(e&&e.detail)||{};receive(d.text,d.title)});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)pull()});
+  fromURL();pull();
+  if(window.__yReady)flush();
+})();
 })();
 </script><script>
 /* đo chiều cao thanh tiêu đề để vẽ lớp kính + bật bóng mờ khi cuộn */
@@ -8319,65 +8381,6 @@ html[data-view=pc] #ycSb.on{opacity:1;pointer-events:auto}
  };
  /* an toàn: nếu tab bị ẩn, dừng hoạt hình để tiết kiệm pin; hiện lại thì chạy tiếp */
  document.addEventListener('visibilitychange',()=>{if(document.hidden){if(timer){clearInterval(timer);timer=0}}else if(busy)start()});
-})();
-</script>
-<script id="yShareJS">
-/* Nhận văn bản chia sẻ từ app khác -> tạo ghi chú mới và mở luôn.
-   Phía Android gọi một trong các cách sau:
-   1) yumeReceiveShare(text, title)            (đẩy trực tiếp)
-   2) yumeReceiveShareB64(textB64, titleB64)   (đẩy, base64 UTF-8, tránh lỗi ký tự đặc biệt)
-   3) YumeAndroid.consumeShare()               (app tự hỏi native lúc mở, trả JSON {"text","title"})
-   4) mở trang với ?text=...&title=...&url=...  (kiểu Web Share Target) */
-(()=>{
-  const Q=[];let last={k:'',at:0};
-  const clean=v=>String(v==null?'':v).replace(/\r\n?/g,'\n').replace(/\u0000/g,'');
-  const dec=b=>{if(!b)return '';try{return new TextDecoder('utf-8').decode(Uint8Array.from(atob(b),c=>c.charCodeAt(0)))}catch(e){return ''}};
-  function make(text,title){
-    const now=Date.now();
-    const n={id:uid(),title:title||'',content:text,html:esc(text).replace(/\n/g,'<br>'),createdAt:now,updatedAt:now,pinned:false,archived:false,deleted:false,todoItems:[],folderId:''};
-    S.notes.push(n);DB.put(n);
-    openNote(n);
-    try{toast('Đã nhận văn bản chia sẻ')}catch(e){}
-    return n;
-  }
-  function flush(){while(Q.length){const a=Q.shift();try{make(a[0],a[1])}catch(e){}}}
-  function receive(text,title){
-    text=clean(text).trim();title=clean(title).trim();
-    if(!text&&!title)return false;
-    if(!text){text=title;title=''}
-    const k=title+'\u0001'+text,now=Date.now();
-    if(last.k===k&&now-last.at<4000)return false;
-    last={k:k,at:now};
-    if(window.__yReady&&Array.isArray(S.notes))make(text,title);else Q.push([text,title]);
-    return true;
-  }
-  function pull(){
-    try{
-      const A=window.YumeAndroid;
-      if(A&&typeof A.consumeShare==='function'){
-        const r=A.consumeShare();
-        if(r){const o=typeof r==='string'?JSON.parse(r):r;receive(o.text,o.title)}
-      }
-    }catch(e){}
-  }
-  function fromURL(){
-    try{
-      const u=new URL(location.href),p=u.searchParams;
-      let text=p.get('text')||'',title=p.get('title')||'',link=p.get('url')||'';
-      if(!text&&link)text=link;else if(text&&link&&text.indexOf(link)<0)text+='\n'+link;
-      if(!text&&!title)return;
-      receive(text,title);
-      ['text','title','url'].forEach(k=>p.delete(k));
-      try{history.replaceState(null,'',u.pathname+(p.toString()?'?'+p.toString():'')+u.hash)}catch(e){}
-    }catch(e){}
-  }
-  window.yumeReceiveShare=receive;
-  window.yumeReceiveShareB64=(t,s)=>receive(dec(t),dec(s));
-  window.yFlushShare=flush;
-  window.addEventListener('yume-share',e=>{const d=(e&&e.detail)||{};receive(d.text,d.title)});
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)pull()});
-  fromURL();pull();
-  if(window.__yReady)flush();
 })();
 </script>
 </body></html>
