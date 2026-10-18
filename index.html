@@ -6393,37 +6393,79 @@ $('#sheetKbX').onclick=()=>composeOff(true);['pointerdown','mousedown'].forEach(
 new MutationObserver(()=>{if(!$('#sheet').classList.contains('composing'))document.querySelectorAll('#sheet .ask.multi').forEach(b=>b.classList.remove('multi'))}).observe($('#sheet'),{attributes:true,attributeFilter:['class']});
 
 
-/* ---- Nhận văn bản chia sẻ từ app khác -> tạo ghi chú mới và mở luôn ----
-   Cách gọi từ bên ngoài:
-   1) mở trang với ?text=...&title=...&url=...   (Web Share Target của PWA)
-   2) yumeReceiveShare(text, title)              (native đẩy vào)
-   3) yumeReceiveShareB64(textB64, titleB64)     (như trên, base64 UTF-8)
-   4) YumeAndroid.consumeShare()                 (app tự hỏi native lúc mở, trả JSON {"text","title"}) */
+/* ---- Nhận nội dung chia sẻ từ app khác (văn bản, ảnh, ghi âm, tài liệu) -> ghi chú mới ----
+   1) PWA (Chrome): sw.js nhận POST /share-target, lưu tạm vào Cache 'yume-share' rồi chuyển về ?yshare=1
+   2) mở trang với ?text=...&title=...&url=...
+   3) yumeReceiveShare(text,title) / yumeReceiveShareB64(textB64,titleB64) / YumeAndroid.consumeShare()  (cho bản APK) */
 (()=>{
   const Q=[];let last={k:'',at:0},emptyShare=false;
   const clean=v=>String(v==null?'':v).replace(/\r\n?/g,'\n').replace(/\u0000/g,'');
   const dec=b=>{if(!b)return '';try{return new TextDecoder('utf-8').decode(Uint8Array.from(atob(b),c=>c.charCodeAt(0)))}catch(e){return ''}};
-  function make(text,title){
+  const baseURL=()=>new URL('./',document.baseURI).href;
+  const kindOf=f=>{
+    const t=(f.type||'').toLowerCase(),n=(f.name||'').toLowerCase(),x=(n.match(/\.([a-z0-9]+)$/)||[])[1]||'';
+    if(t.indexOf('image/')===0||/^(jpe?g|png|gif|webp|bmp|avif)$/.test(x))return 'img';
+    if(t.indexOf('audio/')===0||/^(m4a|mp3|wav|aac|ogg|oga|opus|amr|awb|flac|wma|3gp)$/.test(x))return 'aud';
+    if((t==='text/plain'||/^(txt|md)$/.test(x))&&f.size<=2e6)return 'txt';
+    return 'doc';
+  };
+  async function make(d){
+    const files=d.files||[],imgs=[],auds=[],docs=[],parts=[],skipped=[];
+    if(d.text)parts.push(d.text);
+    for(const f of files){
+      const k=kindOf(f);
+      if(k==='txt'){try{parts.push(await f.text())}catch(e){}}
+      else if(k==='img'){if(f.size>60e6)skipped.push(f);else imgs.push(f)}
+      else if(f.size>8e6)skipped.push(f);
+      else if(k==='aud')auds.push(f);else docs.push(f);
+    }
+    const text=clean(parts.join('\n\n')).trim();
+    let title=clean(d.title).trim();
+    if(!title&&files.length===1&&!imgs.length&&!skipped.length)title=(files[0].name||'').replace(/\.[^.]+$/,'');
+    const added=imgs.length+auds.length+docs.length;
+    if(!text&&!title&&!added){if(skipped.length)toast('Tệp quá lớn nên chưa thêm được (ảnh tối đa 60 MB, ghi âm/tài liệu tối đa 8 MB)');return null}
     const now=Date.now();
-    const n={id:uid(),title:title||'',content:text,html:esc(text).replace(/\n/g,'<br>'),createdAt:now,updatedAt:now,pinned:false,archived:false,deleted:false,todoItems:[],folderId:''};
+    const n={id:uid(),title:title,content:text,html:esc(text).replace(/\n/g,'<br>'),createdAt:now,updatedAt:now,pinned:false,archived:false,deleted:false,todoItems:[],folderId:''};
     S.notes.push(n);DB.put(n);
     openNote(n);
-    toast('Đã nhận văn bản chia sẻ');
+    if(imgs.length)await attachImgs(imgs);
+    for(const f of auds)await attach('aud',f);
+    for(const f of docs)await attach('doc',f);
+    toast((added?'Đã nhận '+added+' tệp chia sẻ':'Đã nhận văn bản chia sẻ')+(skipped.length?' · '+skipped.length+' tệp quá lớn bị bỏ qua':''));
     return n;
   }
-  function flush(){
-    while(Q.length){const a=Q.shift();try{make(a[0],a[1])}catch(e){try{toast('Không tạo được ghi chú từ nội dung chia sẻ')}catch(_){}}}
-    if(emptyShare){emptyShare=false;try{toast('Lần chia sẻ này không kèm văn bản (có thể là file .txt)')}catch(_){}}
+  const run=d=>make(d).catch(e=>{console.error(e);try{toast('Không tạo được ghi chú từ nội dung chia sẻ')}catch(_){}});
+  async function flush(){
+    while(Q.length)await run(Q.shift());
+    if(emptyShare){emptyShare=false;try{toast('Không nhận được nội dung nào từ lần chia sẻ này')}catch(_){}}
   }
-  function receive(text,title){
-    text=clean(text).trim();title=clean(title).trim();
-    if(!text&&!title)return false;
-    if(!text){text=title;title=''}
-    const k=title+'\u0001'+text,now=Date.now();
+  function receive(text,title,files,url){
+    text=clean(text).trim();title=clean(title).trim();url=clean(url).trim();files=files||[];
+    if(url&&text.indexOf(url)<0)text=text?text+'\n'+url:url;
+    if(!text&&!title&&!files.length)return false;
+    if(!text&&title&&!files.length){text=title;title=''}
+    const k=title+'\u0001'+text+'\u0001'+files.map(f=>f.name+':'+f.size).join('|'),now=Date.now();
     if(last.k===k&&now-last.at<4000)return false;
     last={k:k,at:now};
-    if(window.__yReady&&Array.isArray(S.notes))make(text,title);else Q.push([text,title]);
+    const d={title:title,text:text,files:files};
+    if(window.__yReady&&Array.isArray(S.notes))run(d);else Q.push(d);
     return true;
+  }
+  function markEmpty(){emptyShare=true;if(window.__yReady)flush()}
+  async function fromCache(){
+    try{
+      if(!window.caches)return null;
+      const c=await caches.open('yume-share');
+      const mr=await c.match(new URL('shared/meta',baseURL()).href);
+      if(!mr)return null;
+      const m=await mr.json(),files=[];
+      for(const f of (m.files||[])){
+        const r=await c.match(f.key);
+        if(r){const b=await r.blob();if(b.size||f.name)files.push(new File([b],f.name||'tep',{type:f.type||b.type||''}))}
+      }
+      for(const k of await c.keys())await c.delete(k);
+      return {title:m.title,text:m.text,url:m.url,files:files};
+    }catch(e){return null}
   }
   function pull(){
     try{
@@ -6434,22 +6476,28 @@ new MutationObserver(()=>{if(!$('#sheet').classList.contains('composing'))docume
       }
     }catch(e){}
   }
-  function fromURL(){
+  async function fromURL(){
     try{
       const u=new URL(location.href),p=u.searchParams;
-      const keys=['text','title','url'];
+      const keys=['text','title','url','yshare'];
       if(!keys.some(k=>p.has(k)))return;
+      const viaSW=p.has('yshare');
       let text=p.get('text')||'',title=p.get('title')||'',link=p.get('url')||'';
-      if(!text&&link)text=link;else if(text&&link&&text.indexOf(link)<0)text+='\n'+link;
-      if(!text.trim()&&!title.trim())emptyShare=true;else receive(text,title);
       keys.forEach(k=>p.delete(k));
       try{history.replaceState(null,'',u.pathname+(p.toString()?'?'+p.toString():'')+u.hash)}catch(e){}
+      if(viaSW){
+        const d=await fromCache();
+        if(d&&(clean(d.text).trim()||clean(d.title).trim()||clean(d.url).trim()||d.files.length))receive(d.text,d.title,d.files,d.url);
+        else markEmpty();
+        return;
+      }
+      if(!text.trim()&&!title.trim()&&!link.trim())markEmpty();else receive(text,title,[],link);
     }catch(e){}
   }
-  window.yumeReceiveShare=receive;
+  window.yumeReceiveShare=(t,s)=>receive(t,s);
   window.yumeReceiveShareB64=(t,s)=>receive(dec(t),dec(s));
   window.yFlushShare=flush;
-  window.addEventListener('yume-share',e=>{const d=(e&&e.detail)||{};receive(d.text,d.title)});
+  window.addEventListener('yume-share',e=>{const d=(e&&e.detail)||{};receive(d.text,d.title,d.files)});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)pull()});
   fromURL();pull();
   if(window.__yReady)flush();
