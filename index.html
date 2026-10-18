@@ -2286,6 +2286,7 @@ html body #folderbar[hidden]{display:none!important}
    <div><div class="setting-title">Gemini API</div><div class="setting-sub">Tùy chọn. Nhập key rồi bấm Lưu: app tự dùng chế độ Nhanh (ít lỗi hết hạn mức nhất). Key chỉ lưu trên thiết bị này.</div></div>
    <input class="settings-input" id="settingsGeminiKey" type="password" placeholder="Gemini API key (AIza…)" autocomplete="off">
    <div class="settings-actions"><button class="pill red" id="saveGemini">Lưu Gemini</button><button class="pill" id="clearGemini">Xóa key</button></div>
+   <button class="pill" id="gkGuide" type="button" style="width:100%">Hướng dẫn lấy API key</button>
    <small id="geminiStatus"></small>
   </div>
   <div class="setting-card">
@@ -8834,6 +8835,33 @@ if(inst)inst.onclick=async()=>{
  if(dip){const e=dip;dip=null;try{e.prompt();const r=await e.userChoice;if(r&&r.outcome==='accepted')toast('Đang cài Yume Writing…')}catch(_){}return}
  dlg('Chưa thể cài tự động','Chrome chưa cho phép cài vào lúc này. Có thể app đã được cài sẵn, hoặc trang đang mở từ file / không phải https. Bạn có thể mở menu ⋮ của Chrome rồi chọn "Cài đặt ứng dụng" hoặc "Thêm vào màn hình chính".',[{t:'Đã hiểu',c:'red'}])};
 if(upd)upd.onclick=()=>{window.open(URL_,'_blank','noopener')};
+})();
+</script>
+<script id="yGkGuide">
+/* ===== Hướng dẫn lấy Gemini API key ===== */
+(()=>{
+const btn=document.getElementById('gkGuide');if(!btn)return;
+const URL_='https://aistudio.google.com/apikey';
+const st=document.createElement('style');
+st.textContent='.ygk-card{max-height:calc(100vh - 40px);overflow:auto;-webkit-overflow-scrolling:touch}.ygk-steps{margin:2px 0 0;padding:0;list-style:none;counter-reset:g;display:grid;gap:12px}.ygk-steps li{counter-increment:g;position:relative;padding-left:34px;color:var(--ink);font-size:14.5px;line-height:1.5}.ygk-steps li:before{content:counter(g);position:absolute;left:0;top:0;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--red);color:#fff;font:700 13px/1 system-ui,sans-serif}.ygk-steps a{color:var(--red);font-weight:700;word-break:break-all;text-decoration:underline}.ygk-steps b{font-weight:700}';
+document.head.appendChild(st);
+function open(){
+ if(document.querySelector('.ygk-ov'))return;
+ const o=document.createElement('div');o.className='yupd-ov ygk-ov';
+ o.innerHTML='<div class="yupd-card ygk-card" role="dialog" aria-modal="true" aria-label="Hướng dẫn lấy API key"><h3>Hướng dẫn lấy API key</h3><ol class="ygk-steps">'+
+ '<li>Truy cập vào link <a href="'+URL_+'" target="_blank" rel="noopener">'+URL_+'</a></li>'+
+ '<li>Tìm nút <b>Tạo khoá API</b> ngay trên cùng bên phải (nếu chưa đăng nhập thì đăng nhập trước).</li>'+
+ '<li>Đặt tên rồi bấm <b>Tạo khoá</b>.</li>'+
+ '<li>Tìm nút <b>sao chép</b>, rồi vào lại app, giữ vào ô nhập văn bản và bấm <b>Dán</b> để dán key vào.</li>'+
+ '</ol><div class="yupd-b"></div></div>';
+ const close=()=>{document.removeEventListener('keydown',esc,true);o.classList.add('out');setTimeout(()=>o.remove(),200)};
+ const esc=e=>{if(e.key==='Escape'){e.stopPropagation();close()}};
+ const add=(t,c,f)=>{const e=document.createElement('button');e.type='button';e.className='pill'+(c?' '+c:'');e.textContent=t;e.onclick=()=>{if(f)f();close()};o.querySelector('.yupd-b').append(e)};
+ add('Mở Google AI Studio','red',()=>window.open(URL_,'_blank','noopener'));
+ add('Đóng');
+ o.addEventListener('pointerdown',e=>{if(e.target===o)close()});
+ document.addEventListener('keydown',esc,true);document.body.append(o)}
+btn.addEventListener('click',open);
 })();
 </script>
 </body></html>
