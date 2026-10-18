@@ -2258,7 +2258,7 @@ html body #folderbar[hidden]{display:none!important}
 <section id="settings">
  <div class="settings-top"><div class="top"><button class="ib" id="settingsBack" data-i="back" aria-label="Quay lại"></button><h2 style="margin:0;font-size:24px;flex:1">Cài đặt</h2></div></div>
  <div class="settings-list">
-  <div class="setting-card brand-card"><b>Yume<i>.</i> Writing</b><small>Design by Yume<i>.</i> System - Đỗ Đạt</small><small>Truly Creative · Truly Smart</small><small>Version 17.4</small><div class="settings-actions brand-actions" style="display:grid;gap:10px;grid-template-columns:1fr;margin-top:10px"><button class="pill red" id="installApp" type="button" style="width:100%">Cài thành app cho điện thoại</button><button class="pill" id="checkUpdate" type="button" style="width:100%">Cập nhật bản mới nhất</button></div></div>
+  <div class="setting-card brand-card"><b>Yume<i>.</i> Writing</b><small>Design by Yume<i>.</i> System - Đỗ Đạt</small><small>Truly Creative · Truly Smart</small><small>Version 18.0</small><div class="settings-actions brand-actions" style="display:grid;gap:10px;grid-template-columns:1fr;margin-top:10px"><button class="pill red" id="installApp" type="button" style="width:100%">Cài thành app cho điện thoại</button><button class="pill" id="checkUpdate" type="button" hidden style="display:none">Cập nhật bản mới nhất</button></div></div>
   <div class="setting-card">
    <div><div class="setting-title">Giao diện</div><div class="setting-sub">Chuyển giữa chế độ sáng và tối.</div></div>
    <div class="setting-row"><div><b id="themeLabel">Chế độ sáng</b><div class="setting-sub">Yume Writing sẽ ghi nhớ lựa chọn này.</div></div><button class="switch" id="themeSwitch" aria-label="Đổi chế độ sáng tối"></button></div>
@@ -4530,6 +4530,7 @@ $('#arc').onclick=()=>{const m=$('#more');if(m)m.hidden=true;(S.cur&&S.cur.archi
 
 $('#manageTrash').onclick=manageTrash;
 
+window.__ySync={S,DB,LS,toast,renderList,getF:()=>folders,setF:v=>{folders=v}};
 DB.init().then(n=>{S.notes=n.map(x=>({todoItems:[],...x}));renderList();window.__yReady=true;try{window.yFlushShare&&window.yFlushShare()}catch(e){}});
 
 /* ---- Xem trước tài liệu + phân tích bằng Gemini ---- */
@@ -8864,5 +8865,162 @@ function open(){
 btn.addEventListener('click',open);
 })();
 </script>
+<script id="ySyncJS">
+/* ===== Yume Sync: đăng nhập Google + đồng bộ real-time bằng Supabase ===== */
+(()=>{
+const CFG0={url:'https://frwcgirkhenpzpcweqtf.supabase.co',key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZyd2NnaXJraGVucHpwY3dlcXRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMTk3MjAsImV4cCI6MjEwNzg5NTcyMH0.8q_f4NbLGw33zNxlU1vq0KcYHgxex5rWH-WMYSGJ-Zw'}; /* <-- DÁN URL + anon key của bạn */
+const L0=k=>{try{return localStorage.getItem(k)}catch(_){return null}};const CFG={url:L0('yume.sb.url')||CFG0.url,key:L0('yume.sb.key')||CFG0.key};const OK=!/YOUR-/.test(CFG.url+CFG.key), CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js';
+const $=s=>document.querySelector(s), lg=k=>{try{return localStorage.getItem(k)}catch(_){return null}}, ls=(k,v)=>{try{localStorage.setItem(k,v)}catch(_){}};
+let DB,S,LS,toast,renderList,Y;let pOpen=false,editName=false;let sb=null,user=null,ch=null,busy=false,tq=null,rt=0,state='off',lastAt=0,applying=false;
+const Q=new Set(JSON.parse(lg('yume.sync.q')||'[]')), HASH=JSON.parse(lg('yume.sync.h')||'{}'), TOMB=JSON.parse(lg('yume.sync.t')||'{}'), deferred=new Map();
+const saveMeta=()=>{ls('yume.sync.q',JSON.stringify([...Q]));ls('yume.sync.h',JSON.stringify(HASH));ls('yume.sync.t',JSON.stringify(TOMB))};
+const fnv=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(36)+s.length};
+const hashOf=n=>{const{_ts,...r}=n;return fnv(JSON.stringify(r))};
+const ts=n=>n._ts||n.updatedAt||0;
+const on=()=>lg('yume.sync.off')!=='1';
+
+/* ---------- UI ---------- */
+const E=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const avk=()=>'yume.avatar.'+(user?user.id:'');
+const nmk=()=>'yume.name.'+(user?user.id:'');
+const getAv=()=>user?lg(avk()):null;
+const setName=v=>{v=String(v||'').trim().slice(0,30);ls(nmk(),v);ls(nmk()+'.ts',String(Date.now()));Q.add('__name');saveMeta();editName=false;ui();if(user&&on())queue('__name')};
+const setAv=d=>{ls(avk(),d);ls(avk()+'.ts',String(Date.now()));Q.add('__avatar');saveMeta();ui();if(user&&on())queue('__avatar')};
+function pickAvatar(){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files[0];if(!f)return;const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d'),m=Math.min(im.width,im.height);g.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,256,256);URL.revokeObjectURL(im.src);setAv(c.toDataURL('image/jpeg',.82))};im.onerror=()=>toast('Không đọc được ảnh này');im.src=URL.createObjectURL(f)};i.click()}
+function ui(){
+ const card=$('#ySyncCard');if(!card)return;
+ if(!user){pOpen=false;editName=false}
+ const dot={off:'#999',sync:'#f5a623',ok:'#2fb344',err:'#e5484d',offline:'#999'}[state]||'#999';
+ const lab={off:'Chưa đồng bộ',sync:'Đang đồng bộ…',ok:'Đã đồng bộ'+(lastAt?' · '+new Date(lastAt).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):''),err:'Lỗi đồng bộ – sẽ tự thử lại',offline:'Ngoại tuyến – chờ gửi '+Q.size+' thay đổi'}[state];
+ const nm=user?(lg(nmk())||(user.user_metadata&&user.user_metadata.display_name)||String(user.email||'').split('@')[0]):'';
+ const AV='width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(135deg,#ff7a6b,#e5302d);color:#fff;font-size:36px;font-weight:800;position:relative';
+ const person='<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
+ const cam='<span style="position:absolute;right:-2px;bottom:-2px;width:28px;height:28px;border-radius:50%;background:#e5302d;color:#fff;display:flex;align-items:center;justify-content:center;border:3px solid var(--card,var(--bg,#fff))"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>';
+ const row='display:flex;justify-content:space-between;align-items:center;width:100%;padding:14px 16px;background:none;border:0;border-top:1px solid rgba(128,128,128,.18);font:inherit;font-weight:600;color:inherit;text-align:left;cursor:pointer';
+ const grp='border-radius:16px;background:rgba(128,128,128,.08);overflow:hidden';
+ const head=(inner,t,sub)=>`<div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0 2px;text-align:center">${inner}<div style="font-size:20px;font-weight:800;word-break:break-all">${t}</div><div class="setting-sub" style="word-break:break-all">${sub}</div></div>`;
+ let h;
+ if(!OK)h=head(`<div style="${AV}">${person}</div>`,'Yume<span style="color:#e5302d">.</span> Account','Dán thông tin Supabase để bắt đầu.')+`<input class="settings-input" id="ySbUrl" placeholder="Project URL (https://xxxx.supabase.co)" autocomplete="off"><input class="settings-input" id="ySbKey" type="password" placeholder="anon public key" autocomplete="off"><div class="settings-actions"><button class="pill red" id="ySbSave" type="button">Lưu cấu hình Supabase</button></div>`;
+ else if(!user)h=head(`<div style="${AV}">${person}</div>`,'Yume<span style="color:#e5302d">.</span> Account','Sao lưu &amp; đồng bộ ghi chú giữa các thiết bị theo thời gian thực.')+`<input class="settings-input" id="yEmail" type="email" placeholder="Email (Gmail của bạn)" autocomplete="email"><input class="settings-input" id="yPass" type="password" placeholder="Mật khẩu (từ 6 ký tự)" autocomplete="current-password"><div class="settings-actions"><button class="pill red" id="ySignIn" type="button">Đăng nhập</button><button class="pill" id="ySignUp" type="button">Tạo tài khoản</button></div><small id="yAuthMsg"></small>`;
+ else{const AVs=AV.replace('width:88px;height:88px','width:52px;height:52px').replace('font-size:36px','font-size:22px');
+  h=`<div id="yAcc" role="button" aria-expanded="${pOpen}" style="display:flex;align-items:center;gap:12px;cursor:pointer"><div style="${AVs};flex:none"><img id="yAvImg" alt="" style="display:none;width:100%;height:100%;object-fit:cover"><span id="yAvIni">${E((nm[0]||'Y').toUpperCase())}</span></div><div style="flex:1;min-width:0"><div style="font-size:17px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${E(nm)}</div><div class="setting-sub" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dot};margin-right:6px"></span>${lab}</div></div><span id="yChev" style="opacity:.4;font-size:24px;transition:transform .35s cubic-bezier(.22,1,.36,1);transform:rotate(${pOpen?90:0}deg)">›</span></div>`+`<div id="yPanel" style="display:grid;grid-template-rows:${pOpen?'1fr':'0fr'};opacity:${pOpen?1:0};visibility:${pOpen?'visible':'hidden'};transition:grid-template-rows .35s cubic-bezier(.22,1,.36,1),opacity .28s ease"><div style="overflow:hidden;min-height:0"><div class="setting-sub" style="word-break:break-all;margin-top:2px">${E(user.email||'')}</div><div style="${grp};margin-top:8px"><button type="button" id="yAvChg" style="${row.replace('border-top:1px solid rgba(128,128,128,.18)','border-top:0')}">Đổi ảnh đại diện<span style="opacity:.4">›</span></button><button type="button" id="yNameBtn" style="${row}">Đổi tên<span style="opacity:.5;font-weight:500;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${E(nm)}</span></button>${editName?`<div id="yNameRow" style="display:flex;gap:8px;align-items:center;padding:8px 16px 12px"><input class="settings-input" id="yNameIn" maxlength="30" value="${E(nm)}" style="flex:1;margin:0"><button class="pill red" id="yNameOk" type="button">Lưu</button></div>`:''}<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-top:1px solid rgba(128,128,128,.18)"><b>Tự động đồng bộ</b><button class="switch ${on()?'on':''}" id="ySyncSw" aria-label="Bật tắt đồng bộ"></button></div><button type="button" id="ySyncNow" style="${row}">Đồng bộ ngay<span style="opacity:.4">›</span></button><button type="button" id="ySignOut" style="${row};color:#e5302d">Đăng xuất</button></div></div></div>`}
+ card.innerHTML=h;
+ const im=$('#yAvImg'),d=getAv();if(im&&d&&/^data:image\//.test(d)){im.src=d;im.style.display='block';$('#yAvIni').style.display='none'}
+ const b=(i,f)=>{const e=$(i);if(e)e.onclick=f};
+ b('#ySbSave',()=>{const u=$('#ySbUrl').value.trim().replace(/\/+$/,''),k=$('#ySbKey').value.trim();if(!/^https:\/\/[^\s]+\.supabase\.co$/.test(u)||k.length<20){toast('URL hoặc key chưa đúng');return}ls('yume.sb.url',u);ls('yume.sb.key',k);location.reload()});
+ const msg=t=>{const m=$('#yAuthMsg');if(m)m.textContent=t};
+ const auth=async up=>{if(!sb){msg('Chưa tải được thư viện Supabase, hãy kiểm tra mạng.');return}const c={email:($('#yEmail').value||'').trim(),password:$('#yPass').value||''};if(!c.email||c.password.length<6){msg('Nhập email hợp lệ và mật khẩu từ 6 ký tự.');return}msg('Đang xử lý…');let r;try{r=up?await sb.auth.signUp(c):await sb.auth.signInWithPassword(c)}catch(e){r={error:{message:'fetch'}}}if(r.error){msg(/fetch|network/i.test(r.error.message)?'Không kết nối được tới Supabase. Có thể mạng, DNS hoặc trình chặn quảng cáo đang chặn supabase.co. Thử đổi Wi-Fi/4G, bật 1.1.1.1 hoặc VPN rồi thử lại.':r.error.message);return}if(up&&!r.data.session)msg('Đã tạo tài khoản. Hãy mở email để xác nhận rồi quay lại bấm Đăng nhập.')};
+ b('#ySignIn',()=>auth(false));b('#ySignUp',()=>auth(true));
+ b('#yAvChg',pickAvatar);b('#yAcc',()=>{pOpen=!pOpen;editName=false;const P=$('#yPanel'),C=$('#yChev'),R=$('#yNameRow');if(!P){ui();return}if(R)R.remove();clearTimeout(P._t);if(pOpen)P.style.visibility='visible';P.style.gridTemplateRows=pOpen?'1fr':'0fr';P.style.opacity=pOpen?'1':'0';if(C)C.style.transform='rotate('+(pOpen?90:0)+'deg)';if(!pOpen)P._t=setTimeout(()=>{P.style.visibility='hidden'},360)});
+ b('#yNameBtn',()=>{editName=!editName;ui();setTimeout(()=>{const x=$('#yNameIn');if(x)x.focus()},30)});b('#yNameOk',()=>setName($('#yNameIn').value));
+ {const x=$('#yNameIn');if(x)x.onkeydown=e=>{if(e.key==='Enter')setName(x.value)}}
+ b('#ySignOut',async()=>{await stopRT();await sb.auth.signOut();user=null;state='off';ui();toast('Đã đăng xuất. Dữ liệu vẫn còn trên máy này.')});
+ b('#ySyncNow',()=>fullSync(true));
+ b('#ySyncSw',()=>{ls('yume.sync.off',on()?'1':'0');if(on()){fullSync();startRT()}else stopRT();ui()});
+}
+function mount(){
+ if($('#ySyncCard'))return;const t=$('#backupBtn');const host=t&&t.closest('.setting-card');if(!host)return;
+ const c=document.createElement('div');c.className='setting-card';c.id='ySyncCard';(($('#settings .settings-list'))||host.parentNode).prepend(c);ui();
+}
+const setState=s=>{state=s;ui()};
+
+/* ---------- gửi lên ---------- */
+const rowOf=n=>({kind:'note',id:n.id,data:n,deleted:false,updated_at:ts(n)});
+const folderRow=()=>({kind:'folders',id:'folders',data:{list:Y.getF()},deleted:false,updated_at:+lg('yume.sync.fts')||Date.now()});
+function queue(id){Q.add(id);saveMeta();clearTimeout(tq);tq=setTimeout(flush,1200)}
+async function flush(){
+ if(!user||!on()||busy||!Q.size)return;if(!navigator.onLine){setState('offline');return}
+ busy=true;setState('sync');
+ try{
+  const ids=[...Q],rows=[];
+  for(const id of ids){
+   if(id==='__folders'){rows.push(folderRow());continue}
+   if(id==='__name'){rows.push({kind:'folders',id:'name',data:{name:lg(nmk())||''},deleted:false,updated_at:+lg(nmk()+'.ts')||Date.now()});continue}
+   if(id==='__avatar'){const d=getAv();if(d)rows.push({kind:'folders',id:'avatar',data:{img:d},deleted:false,updated_at:+lg(avk()+'.ts')||Date.now()});else Q.delete(id);continue}
+   const n=S.notes.find(x=>x.id===id);
+   if(n)rows.push(rowOf(n));else rows.push({kind:'note',id,data:null,deleted:true,updated_at:TOMB[id]||Date.now()});
+  }
+  let batch=[],sz=0;const send=async()=>{if(!batch.length)return;const{error}=await sb.from('yume_items').upsert(batch,{onConflict:'user_id,kind,id'});if(error)throw error;batch.forEach(r=>{Q.delete(r.kind==='folders'?(r.id==='avatar'?'__avatar':r.id==='name'?'__name':'__folders'):r.id)});batch=[];sz=0};
+  for(const r of rows){const s=JSON.stringify(r).length;if(sz+s>2e6)await send();batch.push(r);sz+=s}
+  await send();rt=0;lastAt=Date.now();saveMeta();setState('ok');
+ }catch(e){console.warn('sync',e);rt=Math.min(rt+1,6);setState('err');setTimeout(flush,2000*2**rt)}
+ busy=false;if(Q.size&&state!=='err')tq=setTimeout(flush,500);
+}
+
+/* ---------- nhận về ---------- */
+function applyRemote(r){
+ if(r.kind==='folders'&&r.id==='name'){if(user&&r.updated_at>(+lg(nmk()+'.ts')||0)&&r.data&&typeof r.data.name==='string'){ls(nmk(),r.data.name);ls(nmk()+'.ts',String(r.updated_at));ui()}return}
+ if(r.kind==='folders'&&r.id==='avatar'){if(user&&r.updated_at>(+lg(avk()+'.ts')||0)&&r.data&&/^data:image\//.test(r.data.img||'')){ls(avk(),r.data.img);ls(avk()+'.ts',String(r.updated_at));ui()}return}
+ if(r.kind==='folders'){
+  if(r.updated_at>(+lg('yume.sync.fts')||0)&&r.data&&Array.isArray(r.data.list)){applying=true;Y.setF(r.data.list);ls('yume.sync.fts',String(r.updated_at));LS.s('yume.folders',JSON.stringify(Y.getF()));applying=false;try{renderList()}catch(_){}}
+  return;
+ }
+ const i=S.notes.findIndex(x=>x.id===r.id),loc=i>=0?S.notes[i]:null;
+ if(loc&&ts(loc)>=r.updated_at)return;
+ if(loc&&S.cur===loc){deferred.set(r.id,r);return}
+ applying=true;
+ if(r.deleted){if(loc){S.notes.splice(i,1);DB.del(r.id)}TOMB[r.id]=r.updated_at;delete HASH[r.id]}
+ else{const n={todoItems:[],...r.data,_ts:r.updated_at};if(i>=0)S.notes[i]=n;else S.notes.push(n);DB.put(n);HASH[r.id]=hashOf(n);TOMB[r.id]&&delete TOMB[r.id]}
+ applying=false;
+}
+setInterval(()=>{if(!deferred.size)return;let ch=0;deferred.forEach((r,id)=>{if(!S.cur||S.cur.id!==id){deferred.delete(id);applyRemote(r);ch=1}});if(ch){saveMeta();try{renderList()}catch(_){}}},2000);
+
+async function fullSync(manual){
+ if(!user||!on()||busy)return;if(!navigator.onLine){setState('offline');return}
+ busy=true;setState('sync');
+ try{
+  const rows=[];for(let from=0;;from+=500){const{data,error}=await sb.from('yume_items').select('kind,id,data,deleted,updated_at').range(from,from+499);if(error)throw error;rows.push(...data);if(data.length<500)break}
+  const remote=new Map(rows.filter(r=>r.kind==='note').map(r=>[r.id,r]));
+  rows.forEach(applyRemote);
+  S.notes.forEach(n=>{const r=remote.get(n.id);if(!r||ts(n)>r.updated_at)Q.add(n.id)});
+  Object.keys(TOMB).forEach(id=>{const r=remote.get(id);if(!r||(!r.deleted&&TOMB[id]>r.updated_at))Q.add(id)});
+  if(!rows.some(r=>r.kind==='folders'&&r.id==='folders')&&Y.getF().length)Q.add('__folders');
+  {const rn=rows.find(r=>r.kind==='folders'&&r.id==='name');if(lg(nmk()+'.ts')&&(!rn||(+lg(nmk()+'.ts')||0)>rn.updated_at))Q.add('__name')}
+  {const ra=rows.find(r=>r.kind==='folders'&&r.id==='avatar');if(getAv()&&(!ra||(+lg(avk()+'.ts')||0)>ra.updated_at))Q.add('__avatar')}
+  saveMeta();try{renderList()}catch(_){}
+  busy=false;await flush();if(manual)toast('Đã đồng bộ xong');
+ }catch(e){console.warn('fullSync',e);busy=false;setState('err')}
+}
+
+/* ---------- real-time ---------- */
+async function startRT(){
+ if(!user||!on()||ch)return;
+ ch=sb.channel('yume-'+user.id).on('postgres_changes',{event:'*',schema:'public',table:'yume_items',filter:'user_id=eq.'+user.id},p=>{
+  const r=p.new;if(!r||!r.kind)return;applyRemote(r);saveMeta();try{renderList()}catch(_){};lastAt=Date.now();ui()}).subscribe();
+}
+async function stopRT(){if(ch){try{await sb.removeChannel(ch)}catch(_){}ch=null}}
+
+/* ---------- móc vào DB của app ---------- */
+function hook(){
+ const P=DB.put.bind(DB),D=DB.del.bind(DB),C=DB.clear.bind(DB);
+ DB.put=n=>{
+  if(!applying&&n&&n.id){const h=hashOf(n);if(h!==HASH[n.id]){n._ts=Math.max(Date.now(),(TOMB[n.id]||0)+1);HASH[n.id]=h;delete TOMB[n.id];if(user&&on())queue(n.id);else{Q.add(n.id);saveMeta()}}}
+  return P(n)};
+ DB.del=id=>{if(!applying){TOMB[id]=Date.now();delete HASH[id];Q.add(id);saveMeta();if(user&&on())queue(id)}return D(id)};
+ DB.clear=()=>{if(!applying){const t=Date.now();S.notes.forEach(n=>{TOMB[n.id]=t;delete HASH[n.id];Q.add(n.id)});saveMeta();if(user&&on())queue('x')}return C()};
+ const Ls=LS.s;LS.s=(k,v)=>{Ls(k,v);if(k==='yume.folders'&&!applying){ls('yume.sync.fts',String(Date.now()));Q.add('__folders');saveMeta();if(user&&on())queue('__folders')}};
+}
+
+/* ---------- khởi động ---------- */
+async function boot(){
+ const wait=setInterval(()=>{if(window.__yReady&&$('#backupBtn')){clearInterval(wait);go()}},300);
+}
+async function go(){
+ Y=window.__ySync;({DB,S,LS,toast,renderList}=Y);
+ hook();mount();
+ if(!OK)return;
+ try{await new Promise((ok,no)=>{const s=document.createElement('script');s.src=CDN;s.onload=ok;s.onerror=no;document.head.append(s)})}catch(e){setState('offline');return}
+ sb=supabase.createClient(CFG.url,CFG.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'pkce'}});
+ const{data}=await sb.auth.getSession();user=data.session&&data.session.user;
+ sb.auth.onAuthStateChange((ev,s)=>{setTimeout(()=>{const u=s&&s.user;if(u&&(!user||user.id!==u.id)){user=u;ui();fullSync();startRT()}else if(!u&&user){user=null;stopRT();state='off';ui()}},0)});
+ ui();if(user){await fullSync();startRT()}
+ addEventListener('online',()=>{fullSync()});addEventListener('offline',()=>setState('offline'));
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)fullSync()});
+ const st=$('#settingsBtn,[data-open-settings]');
+}
+boot();
+})();
+
+</script>
 </body></html>
-<!-- yume17.4 -->
+<!-- yume18.0 -->
