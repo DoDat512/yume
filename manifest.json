@@ -1,12 +1,12 @@
 {
   "id": "./",
-  "name": "Yume Writing",
-  "short_name": "Yume",
+  "name": "Yume. Writing",
+  "short_name": "Yume. Writing",
   "description": "Ghi chú thông minh Yume Writing",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#f3f3f2",
   "theme_color": "#ffffff",
   "icons": [
     {
@@ -29,12 +29,38 @@
     }
   ],
   "share_target": {
-    "action": "./",
-    "method": "GET",
+    "action": "./share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
     "params": {
       "title": "title",
       "text": "text",
-      "url": "url"
+      "url": "url",
+      "files": [
+        {
+          "name": "files",
+          "accept": [
+            "image/*",
+            "audio/*",
+            "application/pdf",
+            ".pdf",
+            ".doc",
+            "application/msword",
+            ".docx",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".txt",
+            "text/plain",
+            ".md",
+            "text/markdown",
+            ".csv",
+            "text/csv",
+            ".json",
+            "application/json",
+            ".html",
+            "text/html"
+          ]
+        }
+      ]
     }
   }
 }
