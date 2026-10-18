@@ -6393,15 +6393,17 @@ $('#sheetKbX').onclick=()=>composeOff(true);['pointerdown','mousedown'].forEach(
 new MutationObserver(()=>{if(!$('#sheet').classList.contains('composing'))document.querySelectorAll('#sheet .ask.multi').forEach(b=>b.classList.remove('multi'))}).observe($('#sheet'),{attributes:true,attributeFilter:['class']});
 
 
-/* ---- Nhận nội dung chia sẻ từ app khác (văn bản, ảnh, ghi âm, tài liệu) -> ghi chú mới ----
+/* ---- Nhận nội dung chia sẻ từ app khác (văn bản, ảnh, ghi âm, tài liệu) ----
+   Hiện bảng chọn: thêm vào một ghi chú có sẵn hoặc tạo "Ghi chú mới".
    1) PWA (Chrome): sw.js nhận POST /share-target, lưu tạm vào Cache 'yume-share' rồi chuyển về ?yshare=1
    2) mở trang với ?text=...&title=...&url=...
    3) yumeReceiveShare(text,title) / yumeReceiveShareB64(textB64,titleB64) / YumeAndroid.consumeShare()  (cho bản APK) */
 (()=>{
-  const Q=[];let last={k:'',at:0},emptyShare=false;
+  const Q=[];let last={k:'',at:0},emptyShare=false,chain=Promise.resolve();
   const clean=v=>String(v==null?'':v).replace(/\r\n?/g,'\n').replace(/\u0000/g,'');
   const dec=b=>{if(!b)return '';try{return new TextDecoder('utf-8').decode(Uint8Array.from(atob(b),c=>c.charCodeAt(0)))}catch(e){return ''}};
   const baseURL=()=>new URL('./',document.baseURI).href;
+  const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
   const kindOf=f=>{
     const t=(f.type||'').toLowerCase(),n=(f.name||'').toLowerCase(),x=(n.match(/\.([a-z0-9]+)$/)||[])[1]||'';
     if(t.indexOf('image/')===0||/^(jpe?g|png|gif|webp|bmp|avif)$/.test(x))return 'img';
@@ -6409,7 +6411,8 @@ new MutationObserver(()=>{if(!$('#sheet').classList.contains('composing'))docume
     if((t==='text/plain'||/^(txt|md)$/.test(x))&&f.size<=2e6)return 'txt';
     return 'doc';
   };
-  async function make(d){
+  /* tách nội dung chia sẻ thành: văn bản, ảnh, ghi âm, tài liệu, tệp quá lớn */
+  async function prep(d){
     const files=d.files||[],imgs=[],auds=[],docs=[],parts=[],skipped=[];
     if(d.text)parts.push(d.text);
     for(const f of files){
@@ -6419,22 +6422,109 @@ new MutationObserver(()=>{if(!$('#sheet').classList.contains('composing'))docume
       else if(f.size>8e6)skipped.push(f);
       else if(k==='aud')auds.push(f);else docs.push(f);
     }
-    const text=clean(parts.join('\n\n')).trim();
-    let title=clean(d.title).trim();
-    if(!title&&files.length===1&&!imgs.length&&!skipped.length)title=(files[0].name||'').replace(/\.[^.]+$/,'');
-    const added=imgs.length+auds.length+docs.length;
-    if(!text&&!title&&!added){if(skipped.length)toast('Tệp quá lớn nên chưa thêm được (ảnh tối đa 60 MB, ghi âm/tài liệu tối đa 8 MB)');return null}
-    const now=Date.now();
-    const n={id:uid(),title:title,content:text,html:esc(text).replace(/\n/g,'<br>'),createdAt:now,updatedAt:now,pinned:false,archived:false,deleted:false,todoItems:[],folderId:''};
-    S.notes.push(n);DB.put(n);
-    openNote(n);
-    if(imgs.length)await attachImgs(imgs);
-    for(const f of auds)await attach('aud',f);
-    for(const f of docs)await attach('doc',f);
-    toast((added?'Đã nhận '+added+' tệp chia sẻ':'Đã nhận văn bản chia sẻ')+(skipped.length?' · '+skipped.length+' tệp quá lớn bị bỏ qua':''));
+    return {text:clean(parts.join('\n\n')).trim(),title:clean(d.title).trim(),files:files,imgs:imgs,auds:auds,docs:docs,skipped:skipped};
+  }
+  /* ghi vào ghi chú mới (target=null) hoặc thêm vào cuối ghi chú có sẵn */
+  async function commit(p,target){
+    const added=p.imgs.length+p.auds.length+p.docs.length;
+    let n=target;
+    if(!n){
+      let title=p.title;
+      if(!title&&p.files.length===1&&!p.imgs.length&&!p.skipped.length)title=(p.files[0].name||'').replace(/\.[^.]+$/,'');
+      const now=Date.now();
+      n={id:uid(),title:title,content:p.text,html:esc(p.text).replace(/\n/g,'<br>'),createdAt:now,updatedAt:now,pinned:false,archived:false,deleted:false,todoItems:[],folderId:''};
+      S.notes.push(n);DB.put(n);
+      openNote(n);
+    }else{
+      openNote(n);
+      await new Promise(r=>setTimeout(r,90));
+      let txt=p.text;
+      if(txt&&p.title&&txt.indexOf(p.title)<0)txt=p.title+'\n'+txt;
+      if(txt){
+        const e=ED();
+        if(e.textContent.replace(/\u200b/g,'').trim()||e.querySelector('img,audio,table,.docchip,.ck,ul,ol')){const sp=document.createElement('div');sp.innerHTML='<br>';e.appendChild(sp)}
+        const dv=document.createElement('div');dv.innerHTML=esc(txt).replace(/\n/g,'<br>');e.appendChild(dv);
+        input();
+      }
+    }
+    if(p.imgs.length)await attachImgs(p.imgs);
+    for(const f of p.auds)await attach('aud',f);
+    for(const f of p.docs)await attach('doc',f);
+    const base=target?('Đã thêm vào ghi chú'+(added?' ('+added+' tệp)':'')):(added?'Đã nhận '+added+' tệp chia sẻ':'Đã nhận văn bản chia sẻ');
+    toast(base+(p.skipped.length?' · '+p.skipped.length+' tệp quá lớn bị bỏ qua':''));
     return n;
   }
-  const run=d=>make(d).catch(e=>{console.error(e);try{toast('Không tạo được ghi chú từ nội dung chia sẻ')}catch(_){}});
+  function css(){
+    if(document.getElementById('yShareCSS'))return;
+    const st=document.createElement('style');st.id='yShareCSS';
+    st.textContent='#yShOv{position:absolute;inset:0;z-index:11;display:flex;align-items:flex-end;justify-content:center;background:rgba(246,248,255,.20);-webkit-backdrop-filter:blur(13px) saturate(135%);backdrop-filter:blur(13px) saturate(135%);animation:fi .2s}'
+    +'.ysh-card{width:100%;max-width:560px;max-height:88%;display:flex;flex-direction:column;gap:12px;box-sizing:border-box;background:var(--bg);border:1px solid var(--line);border-radius:26px 26px 0 0;padding:20px 16px calc(16px + var(--sab,0px));box-shadow:0 -10px 50px var(--rg);animation:up .28s cubic-bezier(.2,.85,.25,1)}'
+    +'.ysh-card h3{margin:0;font-size:19px}.ysh-sum{margin:0;color:var(--mut);font-size:13px;line-height:1.5;overflow-wrap:anywhere}'
+    +'.ysh-card .ysh-new{display:block;width:100%;box-sizing:border-box;padding:14px;font-size:16px;text-align:center}.ysh-card>.pill:last-child{display:block;width:100%;box-sizing:border-box;padding:12px;text-align:center}'
+    +'.ysh-q{width:100%;box-sizing:border-box;padding:11px 14px;border:1px solid var(--line);border-radius:14px;background:var(--sf);color:var(--ink);font:inherit;font-size:15px;outline:none}.ysh-q:focus{border-color:var(--red)}'
+    +'.ysh-list{display:grid;gap:8px;overflow:auto;flex:1 1 auto;min-height:72px;padding:2px;align-content:start;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}'
+    +'.ysh-it{display:grid;gap:3px;text-align:left;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:16px;background:var(--bg);border:1px solid var(--line);color:var(--ink);font:inherit;transition:transform .15s,border-color .15s}.ysh-it:active{transform:scale(.98);border-color:var(--red)}'
+    +'.ysh-it b{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ysh-it .ysh-sn{font-size:13px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ysh-it small{font-size:11px;color:var(--mut)}'
+    +'.ysh-none{margin:8px 0;text-align:center;color:var(--mut);font-size:14px}'
+    +'html[data-view=pc] #yShOv{align-items:center;padding:20px;box-sizing:border-box}html[data-view=pc] .ysh-card{border-radius:26px;max-height:80%}';
+    document.head.appendChild(st);
+  }
+  function describe(p){
+    const a=[];
+    if(p.imgs.length)a.push('🖼 '+p.imgs.length+' ảnh');
+    if(p.auds.length)a.push('🎙 '+p.auds.length+' ghi âm');
+    if(p.docs.length)a.push('📄 '+p.docs.length+' tài liệu');
+    if(p.text)a.push('✎ văn bản');
+    if(p.skipped.length)a.push('⚠ '+p.skipped.length+' tệp quá lớn sẽ bị bỏ qua');
+    return a.join(' · ');
+  }
+  /* bảng chọn: trả về 'new' (ghi chú mới), một ghi chú có sẵn, hoặc null (hủy) */
+  function choose(p){
+    return new Promise(res=>{
+      css();
+      const dlg=$('#dlg'),host=dlg&&dlg.parentNode||document.body;
+      const ov=el('div');ov.id='yShOv';
+      const card=el('div','ysh-card');card.setAttribute('role','dialog');card.setAttribute('aria-modal','true');
+      card.append(el('h3','','Thêm vào ghi chú nào?'));
+      const sm=describe(p);if(sm)card.append(el('p','ysh-sum',sm));
+      const nb=el('button','pill red ysh-new','＋ Ghi chú mới');nb.type='button';card.append(nb);
+      const notes=S.notes.filter(n=>!n.deleted&&!n.archived).sort((a,b)=>(b.pinned-a.pinned)||b.updatedAt-a.updatedAt);
+      const done=v=>{ov.remove();res(v)};
+      nb.onclick=()=>done('new');
+      let q=null,list=null;
+      if(notes.length){
+        q=el('input','ysh-q');q.type='search';q.placeholder='Tìm ghi chú để thêm vào…';q.autocomplete='off';
+        list=el('div','ysh-list');
+        const draw=()=>{
+          const k=norm(q.value);list.textContent='';
+          const arr=notes.filter(n=>!k||norm((n.title||'')+' '+(n.content||'')).includes(k)).slice(0,80);
+          if(!arr.length){list.append(el('p','ysh-none','Không tìm thấy ghi chú.'));return}
+          arr.forEach(n=>{
+            const it=el('button','ysh-it');it.type='button';
+            const first=(n.content||'').replace(/\s+/g,' ').trim();
+            const t=(n.title||'').trim()||first.slice(0,60)||'Không tiêu đề';
+            it.append(el('b','',(n.pinned?'📌 ':'')+t));
+            if((n.title||'').trim()&&first)it.append(el('span','ysh-sn',first.slice(0,90)));
+            it.append(el('small','',new Date(n.updatedAt).toLocaleDateString('vi-VN')));
+            it.onclick=()=>done(n);
+            list.append(it);
+          });
+        };
+        q.oninput=draw;draw();card.append(q,list);
+      }
+      const cb=el('button','pill','Hủy');cb.type='button';cb.onclick=()=>done(null);card.append(cb);
+      ov.append(card);host.append(ov);
+    });
+  }
+  async function handle(d){
+    const p=await prep(d);
+    const added=p.imgs.length+p.auds.length+p.docs.length;
+    if(!p.text&&!p.title&&!added){if(p.skipped.length)toast('Tệp quá lớn nên chưa thêm được (ảnh tối đa 60 MB, ghi âm/tài liệu tối đa 8 MB)');return}
+    const pick=await choose(p);
+    if(pick===null){toast('Đã hủy, chưa lưu nội dung chia sẻ');return}
+    await commit(p,pick==='new'?null:pick);
+  }
+  const run=d=>chain=chain.then(()=>handle(d)).catch(e=>{console.error(e);try{toast('Không xử lý được nội dung chia sẻ')}catch(_){}});
   async function flush(){
     while(Q.length)await run(Q.shift());
     if(emptyShare){emptyShare=false;try{toast('Không nhận được nội dung nào từ lần chia sẻ này')}catch(_){}}
