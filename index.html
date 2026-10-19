@@ -9369,16 +9369,22 @@ layout();sync();
 /* ảnh nền tài khoản (kiểu trang cá nhân) */
 #ySyncCard{position:relative;overflow:hidden}
 #ySyncCard>*{position:relative;z-index:1}
-#ySyncCard.yc{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;color:#fff;border-color:transparent!important;animation:yCvIn .5s ease both}
-@keyframes yCvIn{from{opacity:.4;transform:scale(.985)}}
-#ySyncCard.yc::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.14) 0%,rgba(0,0,0,.1) 30%,rgba(0,0,0,.74) 100%)}
+#ySyncCard.yc{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;color:#fff;border-color:transparent!important}
+html html body #ySyncCard.yc{border:0!important;outline:0!important;box-shadow:0 10px 30px rgba(0,0,0,.28)!important;background-clip:border-box!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+#ySyncCard.yc::before{content:"";position:absolute;inset:-2px;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.14) 0%,rgba(0,0,0,.1) 30%,rgba(0,0,0,.74) 100%)}
 #ySyncCard.yc #yAcc{margin-top:92px}
 #ySyncCard.yc #yAcc>div:first-child{box-shadow:0 0 0 3px rgba(255,255,255,.92),0 4px 14px rgba(0,0,0,.35)}
 #ySyncCard.yc #yAcc>div:nth-child(2)>div:first-child{font-size:22px!important;text-shadow:0 1px 8px rgba(0,0,0,.55)}
 #ySyncCard.yc .setting-sub{color:rgba(255,255,255,.88);text-shadow:0 1px 4px rgba(0,0,0,.5)}
-#ySyncCard.yc #yPanel>div>div:not(.setting-sub){background:rgba(255,255,255,.92)!important;color:var(--ink);text-shadow:none;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
-html[data-theme=dark] #ySyncCard.yc #yPanel>div>div:not(.setting-sub){background:rgba(28,28,34,.9)!important}
-@media(prefers-color-scheme:dark){html:not([data-theme=light]) #ySyncCard.yc #yPanel>div>div:not(.setting-sub){background:rgba(28,28,34,.9)!important}}
+#ySyncCard.yc #yPanel>div>div:not(.setting-sub){background:linear-gradient(145deg,rgba(255,255,255,.62),rgba(255,255,255,.34))!important;color:var(--ink);text-shadow:none;border:1px solid rgba(255,255,255,.8);-webkit-backdrop-filter:blur(26px) saturate(1.8) brightness(1.06);backdrop-filter:blur(26px) saturate(1.8) brightness(1.06);box-shadow:0 14px 38px rgba(20,30,60,.28),0 0 0 .5px rgba(60,66,90,.16),inset 0 1.5px 1px rgba(255,255,255,.95),inset 0 0 18px rgba(255,255,255,.28)}
+/* không dùng opacity trên khung chứa: opacity<1 làm backdrop-filter (blur) tắt cho tới khi chạy xong → hiệu ứng bị hiện trễ */
+#ySyncCard.yc #yPanel{opacity:1!important;transition:grid-template-rows .35s cubic-bezier(.22,1,.36,1)!important}
+#ySyncCard.yc #yPanel>div>div:not(.setting-sub){will-change:backdrop-filter;transform:translateZ(0)}
+#ySyncCard.yc #yPanel button{border-top-color:rgba(255,255,255,.5)!important;transition:background .18s}
+#ySyncCard.yc #yPanel button:active{background:rgba(255,255,255,.34)}
+html[data-theme=dark] #ySyncCard.yc #yPanel>div>div:not(.setting-sub){background:linear-gradient(145deg,rgba(70,70,80,.58),rgba(30,30,38,.5))!important;border-color:rgba(255,255,255,.2);box-shadow:0 14px 38px rgba(0,0,0,.55),0 0 0 .5px rgba(255,255,255,.1),inset 0 1.5px 1px rgba(255,255,255,.2)}
+html[data-theme=dark] #ySyncCard.yc #yPanel button{border-top-color:rgba(255,255,255,.14)!important}
+@media(prefers-color-scheme:dark){html:not([data-theme=light]) #ySyncCard.yc #yPanel>div>div:not(.setting-sub){background:linear-gradient(145deg,rgba(70,70,80,.58),rgba(30,30,38,.5))!important;border-color:rgba(255,255,255,.2);box-shadow:0 14px 38px rgba(0,0,0,.55),0 0 0 .5px rgba(255,255,255,.1),inset 0 1.5px 1px rgba(255,255,255,.2)}html:not([data-theme=light]) #ySyncCard.yc #yPanel button{border-top-color:rgba(255,255,255,.14)!important}}
 </style>
 <style id="yUpdCss">
 .yupd-ov{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:20px;background:rgba(246,248,255,.2);-webkit-backdrop-filter:blur(13px) saturate(135%);backdrop-filter:blur(13px) saturate(135%);animation:yupdO .25s ease both}
@@ -9502,7 +9508,7 @@ function ui(){
  else{const AVs=AV.replace('width:88px;height:88px','width:52px;height:52px').replace('font-size:36px','font-size:22px');
   h=`<div id="yAcc" role="button" aria-expanded="${pOpen}" style="display:flex;align-items:center;gap:12px;cursor:pointer"><div style="${AVs};flex:none"><img id="yAvImg" alt="" style="display:none;width:100%;height:100%;object-fit:cover"><span id="yAvIni">${E((nm[0]||'Y').toUpperCase())}</span></div><div style="flex:1;min-width:0"><div style="font-size:17px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${E(nm)}</div><div class="setting-sub" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dot};margin-right:6px"></span>${lab}</div></div><span id="yChev" style="opacity:.4;font-size:24px;transition:transform .35s cubic-bezier(.22,1,.36,1);transform:rotate(${pOpen?90:0}deg)">›</span></div>`+`<div id="yPanel" style="display:grid;grid-template-rows:${pOpen?'1fr':'0fr'};opacity:${pOpen?1:0};visibility:${pOpen?'visible':'hidden'};transition:grid-template-rows .35s cubic-bezier(.22,1,.36,1),opacity .28s ease"><div style="overflow:hidden;min-height:0"><div class="setting-sub" style="word-break:break-all;margin-top:2px">${E(user.email||'')}</div><div style="${grp};margin-top:8px"><button type="button" id="yAvChg" style="${row.replace('border-top:1px solid rgba(128,128,128,.18)','border-top:0')}">Đổi ảnh đại diện<span style="opacity:.4">›</span></button><button type="button" id="yCvChg" style="${row}">Đổi ảnh nền<span style="opacity:.4">›</span></button>${getCv()?`<button type="button" id="yCvDel" style="${row}">Xóa ảnh nền<span style="opacity:.4">›</span></button>`:''}<button type="button" id="yNameBtn" style="${row}">Đổi tên<span style="opacity:.5;font-weight:500;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${E(nm)}</span></button>${editName?`<div id="yNameRow" style="display:flex;gap:8px;align-items:center;padding:8px 16px 12px"><input class="settings-input" id="yNameIn" maxlength="30" value="${E(nm)}" style="flex:1;margin:0"><button class="pill red" id="yNameOk" type="button">Lưu</button></div>`:''}<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-top:1px solid rgba(128,128,128,.18)"><b>Tự động đồng bộ</b><button class="switch ${on()?'on':''}" id="ySyncSw" aria-label="Bật tắt đồng bộ"></button></div><button type="button" id="ySyncNow" style="${row}">Đồng bộ ngay<span style="opacity:.4">›</span></button><button type="button" id="ySignOut" style="${row};color:#e5302d">Đăng xuất</button></div></div></div>`}
  card.innerHTML=h;
- {const cv=user?getCv():'';card.classList.toggle('yc',!!cv);card.style.backgroundImage=cv&&/^data:image\//.test(cv)?'url("'+cv+'")':''}
+ {const cv=user?getCv():'';card.classList.toggle('yc',!!cv);if(card._cv!==cv){card._cv=cv;card.style.backgroundImage=cv&&/^data:image\//.test(cv)?'url("'+cv+'")':''}}
  const im=$('#yAvImg'),d=getAv();if(im&&d&&/^data:image\//.test(d)){im.src=d;im.style.display='block';$('#yAvIni').style.display='none'}
  const b=(i,f)=>{const e=$(i);if(e)e.onclick=f};
  b('#ySbSave',()=>{const u=$('#ySbUrl').value.trim().replace(/\/+$/,''),k=$('#ySbKey').value.trim();if(!/^https:\/\/[^\s]+\.supabase\.co$/.test(u)||k.length<20){toast('URL hoặc key chưa đúng');return}ls('yume.sb.url',u);ls('yume.sb.key',k);location.reload()});
@@ -9678,4 +9684,4 @@ boot();
 
 </script>
 </body></html>
-<!-- yume19.0 -->
+<!-- yume18.3 -->
