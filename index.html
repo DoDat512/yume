@@ -9768,7 +9768,8 @@ html.ymorph:not([data-view=pc]) #ed{transform:none!important}
 html.ymorph body #ed #tools,html.ymorph-out body #ed #tools{overflow:hidden;transition:none!important}
 html.ymorph body #ed #tools{will-change:width,height,left,right,margin-left,bottom}
 /* tắt blur nền trong lúc chạy cho nhẹ máy */
-html.ymorph body #ed #tools,html.ymorph-out body #ed #tools{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* chỉ tắt blur khi THU VỀ (thanh đang mờ dần nên blur vô nghĩa). Khi MỞ ghi chú giữ blur kính ngay từ khung hình đầu — trước đây tắt hết lúc chạy rồi bật lại ở cuối nên kính bị hiện trễ, thấy chữ xuyên qua thanh */
+html.ymorph-out body #ed #tools{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 /* ---- thu về khi thoát ghi chú ---- */
 html.ymorph-out #list{transform:none!important}
 html.ymorph-out[data-view=pc] #ed.off>#tools{display:flex!important}
