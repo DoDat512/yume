@@ -2361,7 +2361,7 @@ html body #folderbar[hidden]{display:none!important}
 <section id="settings">
  <div class="settings-top"><div class="top"><button class="ib" id="settingsBack" data-i="back" aria-label="Quay lại"></button><h2 style="margin:0;font-size:24px;flex:1">Cài đặt</h2></div></div>
  <div class="settings-list">
-  <div class="setting-card brand-card"><b>Yume<i>.</i> Writing</b><small>Design by Yume<i>.</i> System - Đỗ Đạt</small><small>Truly Creative · Truly Smart</small><small>Version 19.1</small><div class="settings-actions brand-actions" style="display:grid;gap:10px;grid-template-columns:1fr;margin-top:10px"><button class="pill" id="changelogBtn" type="button" style="width:100%">Thông tin bản cập nhật</button><button class="pill red" id="installApp" type="button" style="width:100%">Cài thành app cho điện thoại</button><button class="pill" id="checkUpdate" type="button" hidden style="display:none">Cập nhật bản mới nhất</button></div></div>
+  <div class="setting-card brand-card"><b>Yume<i>.</i> Writing</b><small>Design by Yume<i>.</i> System - Đỗ Đạt</small><small>Truly Creative · Truly Smart</small><small>Version 19.2</small><div class="settings-actions brand-actions" style="display:grid;gap:10px;grid-template-columns:1fr;margin-top:10px"><button class="pill" id="changelogBtn" type="button" style="width:100%">Thông tin bản cập nhật</button><button class="pill red" id="installApp" type="button" style="width:100%">Cài thành app cho điện thoại</button><button class="pill" id="checkUpdate" type="button" hidden style="display:none">Cập nhật bản mới nhất</button></div></div>
   <div class="setting-card">
    <div><div class="setting-title">Giao diện</div><div class="setting-sub">Chuyển giữa chế độ sáng và tối.</div></div>
    <div class="setting-row"><div><b id="themeLabel">Chế độ sáng</b><div class="setting-sub">Yume Writing sẽ ghi nhớ lựa chọn này.</div></div><button class="switch" id="themeSwitch" aria-label="Đổi chế độ sáng tối"></button></div>
@@ -9383,8 +9383,8 @@ html[data-theme=dark] #ySyncCard.yc{background:#4a4b53!important}
 html html body #ySyncCard.yc{border:0!important;outline:0!important;box-shadow:0 10px 30px rgba(0,0,0,.28)!important;background-clip:border-box!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 #ySyncCard.yc::before{display:none}
 #ySyncCard.yc #yAcc{margin-top:92px}
-#ySyncCard.yc #yAcc>div:first-child{box-shadow:0 0 0 3px rgba(255,255,255,.92),0 4px 14px rgba(0,0,0,.35)}
-#ySyncCard.yc #yAcc>div:nth-child(2)>div:first-child{font-size:22px!important;text-shadow:0 1px 8px rgba(0,0,0,.55)}
+#ySyncCard.yc #yAcc>div:first-child{box-sizing:content-box;border:4px solid rgba(255,255,255,.2);background-clip:padding-box!important;-webkit-backdrop-filter:blur(14px) saturate(1.6);backdrop-filter:blur(14px) saturate(1.6);box-shadow:0 0 0 .5px rgba(255,255,255,.4),0 4px 14px rgba(0,0,0,.28)}
+#ySyncCard.yc #yAcc>div:nth-child(2)>div:first-child{font-size:22px!important;font-family:'Noto Serif',Georgia,'Times New Roman',serif!important;font-weight:600!important;text-shadow:none}
 #ySyncCard.yc .setting-sub{color:rgba(255,255,255,.88);text-shadow:0 1px 4px rgba(0,0,0,.5)}
 #ySyncCard.yc #yPanel>div>div:not(.setting-sub){background:linear-gradient(145deg,rgba(255,255,255,.62),rgba(255,255,255,.34))!important;color:var(--ink);text-shadow:none;border:1px solid rgba(255,255,255,.8);-webkit-backdrop-filter:blur(26px) saturate(1.8) brightness(1.06);backdrop-filter:blur(26px) saturate(1.8) brightness(1.06);box-shadow:0 14px 38px rgba(20,30,60,.28),0 0 0 .5px rgba(60,66,90,.16),inset 0 1.5px 1px rgba(255,255,255,.95),inset 0 0 18px rgba(255,255,255,.28)}
 /* không dùng opacity trên khung chứa: opacity<1 làm backdrop-filter (blur) tắt cho tới khi chạy xong → hiệu ứng bị hiện trễ */
@@ -9889,10 +9889,10 @@ html:not([data-view=pc]) #ed.off>#tools{transition:none!important}/* hết anima
 <script id="yChangelogJs">
 (()=>{
  const btn=document.getElementById('changelogBtn');if(!btn)return;
- const ITEMS=['Thêm animation cho thanh dock','Sửa lỗi vị trí Live Notch ở Canvas mode','Nút tắt Blur phần Yume. AI Chat'];
+ const ITEMS=['Thêm animation cho thanh dock','Sửa lỗi vị trí Live Notch ở Canvas mode','Nút tắt Blur phần Yume. AI Chat','Hiệu ứng blur trong giao diện cài đặt','Hiệu ứng chuyển tab chế độ PC','Hiệu ứng ánh sáng ở màn hình chính'];
  btn.onclick=()=>{
   const o=document.createElement('div');o.className='yupd-ov';
-  o.innerHTML='<div class="yupd-card" role="dialog" aria-modal="true" aria-label="Thông tin bản cập nhật"><h3>Thông tin bản cập nhật</h3><span class="ychg-ver">Phiên bản 19.1</span><ul class="ychg-list"></ul><div class="yupd-b"><button type="button" class="pill red">Đã hiểu</button></div></div>';
+  o.innerHTML='<div class="yupd-card" role="dialog" aria-modal="true" aria-label="Thông tin bản cập nhật"><h3>Thông tin bản cập nhật</h3><span class="ychg-ver">Phiên bản 19.2</span><ul class="ychg-list"></ul><div class="yupd-b"><button type="button" class="pill red">Đã hiểu</button></div></div>';
   const ul=o.querySelector('ul');ITEMS.forEach(t=>{const li=document.createElement('li');li.textContent=t;ul.append(li)});
   const esc=e=>{if(e.key==='Escape'){e.stopPropagation();close()}};
   const close=()=>{document.removeEventListener('keydown',esc,true);o.classList.add('out');setTimeout(()=>o.remove(),200)};
@@ -9902,5 +9902,229 @@ html:not([data-view=pc]) #ed.off>#tools{transition:none!important}/* hết anima
  };
 })();
 </script>
+<style id="yStageCss">
+/* ===== Stage Manager: chuyển ghi chú kiểu macOS (CHỈ giao diện PC) ===== */
+@media(min-width:640px){
+ html[data-view=pc] #cards .card.ystg-hid{display:none!important}
+ html[data-view=pc] #ed.ystg-fly{transform-origin:0 0;background:var(--bg);overflow:hidden;will-change:transform,clip-path}
+ html[data-view=pc].ystg-run #ed.off #edEmpty{opacity:0}
+ html[data-view=pc] #ed.off #edEmpty{transition:opacity .35s ease .05s}
+ html[data-view=pc] .ystg-g{position:absolute;margin:0;transform-origin:0 0;background:var(--bg);overflow:hidden;pointer-events:none;box-sizing:border-box;will-change:transform,clip-path,opacity}
+ html[data-view=pc] .ystg-g .gt{font-size:24px;font-weight:700;line-height:1.25;margin:0 0 14px;overflow-wrap:anywhere;color:var(--ink)}
+ html[data-view=pc] .ystg-g .gb{font-size:18px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink);opacity:.85;-webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent);max-height:100%}
+ html[data-view=pc] .ystg-cg{position:fixed!important;margin:0!important;pointer-events:none;z-index:60;box-sizing:border-box}
+ /* ánh sáng đỏ nhẹ di chuyển ở trang chờ (kiểu Gemini) */
+ html[data-view=pc] #ed.off #edEmpty{position:relative;z-index:1}
+ /* lớp sáng luôn tồn tại trên #ed (PC) để mờ dần khi mở ghi chú / rõ dần khi thoát */
+ html[data-view=pc] #ed::before,html[data-view=pc] #ed::after{content:"";position:absolute;left:0;right:0;bottom:-8%;height:80%;z-index:0;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .38s ease,visibility 0s .38s;will-change:transform,opacity;animation-play-state:paused}
+ html[data-view=pc] #ed::before{background:radial-gradient(ellipse 22% 15% at 20% 86%,rgba(229,50,45,.62),transparent 70%),radial-gradient(ellipse 22% 14% at 50% 86%,rgba(255,150,90,.5),transparent 70%),radial-gradient(ellipse 22% 15% at 80% 86%,rgba(229,50,45,.52),transparent 70%);background-size:200% 200%;background-repeat:no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);animation:yEmWaveA 4.6s ease-in-out infinite alternate}
+ html[data-view=pc] #ed::after{background:radial-gradient(ellipse 22% 14% at 25% 86%,rgba(255,107,129,.55),transparent 70%),radial-gradient(ellipse 24% 16% at 50% 86%,rgba(229,50,45,.46),transparent 70%),radial-gradient(ellipse 22% 14% at 75% 86%,rgba(255,150,90,.42),transparent 70%);background-size:200% 200%;background-repeat:no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);animation:yEmWaveB 6.2s ease-in-out infinite alternate}
+ html[data-view=pc] #ed.off::before,html[data-view=pc] #ed.off::after{opacity:1;visibility:visible;transition:opacity .8s ease .22s,visibility 0s;animation-play-state:running}
+ html[data-view=pc] #ed:not(.off)::before,html[data-view=pc] #ed:not(.off)::after{animation-play-state:paused}
+ html.y-lite[data-view=pc] #ed.off::before,html.y-lite[data-view=pc] #ed.off::after{animation-play-state:paused}
+ html[data-view=pc] .ystg-eg{position:absolute;display:grid;place-items:center;text-align:center;color:var(--mut);pointer-events:none;padding:24px;box-sizing:border-box}
+}
+/* ánh sáng đỏ nhẹ ở màn hình chính chế độ PE (tách riêng, không dính tới PC) */
+html:not([data-view=pc]) #app::before,html:not([data-view=pc]) #list::before{content:"";position:absolute;left:0;right:0;bottom:-6%;height:72%;z-index:0;pointer-events:none;will-change:transform,opacity;transition:opacity .38s ease}
+html:not([data-view=pc]) #app::before{background:radial-gradient(ellipse 22% 14% at 25% 86%,rgba(255,107,129,.55),transparent 70%),radial-gradient(ellipse 24% 16% at 50% 86%,rgba(229,50,45,.46),transparent 70%),radial-gradient(ellipse 22% 14% at 75% 86%,rgba(255,150,90,.42),transparent 70%);background-size:200% 200%;background-repeat:no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);animation:yEmWaveB 6.2s ease-in-out infinite alternate}
+html:not([data-view=pc]) #list::before{background:radial-gradient(ellipse 22% 15% at 20% 86%,rgba(229,50,45,.62),transparent 70%),radial-gradient(ellipse 22% 14% at 50% 86%,rgba(255,150,90,.5),transparent 70%),radial-gradient(ellipse 22% 15% at 80% 86%,rgba(229,50,45,.52),transparent 70%);background-size:200% 200%;background-repeat:no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);animation:yEmWaveA 4.6s ease-in-out infinite alternate}
+html:not([data-view=pc]) #app:has(#list.off)::before{opacity:0}
+html.y-lite:not([data-view=pc]) #app::before,html.y-lite:not([data-view=pc]) #list::before{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){html:not([data-view=pc]) #app::before,html:not([data-view=pc]) #list::before{animation:none!important}}
+@keyframes yEmWaveA{0%{background-position:10% 100%,60% 70%,30% 90%}33%{background-position:35% 72%,30% 100%,70% 62%}66%{background-position:60% 96%,85% 72%,10% 100%}100%{background-position:85% 68%,45% 96%,55% 68%}}
+@keyframes yEmWaveB{0%{background-position:70% 66%,20% 100%,50% 80%}33%{background-position:40% 100%,55% 68%,85% 96%}66%{background-position:15% 70%,80% 100%,30% 66%}100%{background-position:55% 98%,35% 72%,75% 100%}}
+@keyframes yEmGlowA{0%{transform:translateX(-6%) scaleY(.85)}50%{transform:translateX(1%) scaleY(1.14)}100%{transform:translateX(6%) scaleY(.9)}}
+@keyframes yEmGlowB{0%{transform:translateX(6%) scaleY(1.1)}50%{transform:translateX(-2%) scaleY(.82)}100%{transform:translateX(-6%) scaleY(1.16)}}
+@media(prefers-reduced-motion:reduce){html[data-view=pc] #ed::before,html[data-view=pc] #ed::after{animation:none!important}}
+</style>
+<script id="yStageJS">
+(()=>{
+ const HTML=document.documentElement,APP=document.getElementById('app'),ED_=document.getElementById('ed'),CARDS=document.getElementById('cards');
+ if(!APP||!ED_||!CARDS||!ED_.animate)return;
+ const isPC=()=>HTML.getAttribute('data-view')==='pc'&&matchMedia('(min-width:640px)').matches;
+ const still=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
+ const EASE='cubic-bezier(.22,.9,.24,1)',DUR=560,GAP=8;
+ let openId=null,tok=0,junk=[],runT=0;
+ const isOpen=()=>!ED_.classList.contains('off');
+ const cardOf=id=>id==null?null:[...CARDS.querySelectorAll('.card[data-nid]')].find(c=>c.dataset.nid===String(id))||null;
+ const lineColor=()=>getComputedStyle(HTML).getPropertyValue('--line').trim()||'#2a2a2e';
+ const kill=()=>{junk.forEach(x=>{try{x.remove()}catch(e){}});junk=[]};
+ const appRect=()=>APP.getBoundingClientRect();
+
+ /* --- ẩn thẻ của ghi chú đang mở khỏi sidebar --- */
+ function applyHide(){
+  if(!isPC())return;
+  const open=isOpen();
+  if(!open)openId=null;else{const a=CARDS.querySelector('.card.active[data-nid]');if(a)openId=a.dataset.nid}
+  CARDS.querySelectorAll('.card').forEach(c=>c.classList.toggle('ystg-hid',!!(open&&openId!=null&&c.dataset.nid===openId)));
+ }
+ new MutationObserver(applyHide).observe(CARDS,{childList:true});
+
+ /* --- bóng "trang ghi chú" dùng để thu nhỏ về sidebar --- */
+ function makeGhost(){
+  const t=(document.getElementById('title').textContent||'').trim();
+  const b=document.getElementById('body');
+  const txt=((b&&(b.innerText||b.textContent))||'').replace(/\u200b/g,'').replace(/\n{3,}/g,'\n\n').trim().slice(0,600);
+  const er=ED_.getBoundingClientRect(),ar=appRect(),cs=getComputedStyle(ED_);
+  const g=document.createElement('div');g.className='ystg-g';
+  g.style.cssText=`left:${er.left-ar.left}px;top:${er.top-ar.top}px;width:${er.width}px;height:${er.height}px;padding:76px ${cs.paddingRight} 0 ${cs.paddingLeft}`;
+  const gt=document.createElement('div');gt.className='gt';gt.textContent=t;
+  const gb=document.createElement('div');gb.className='gb';gb.textContent=txt;
+  g.append(gt,gb);
+  return{el:g,er,title:t,text:txt,blank:!t&&!txt&&!(b&&b.querySelector('img,audio,table,.docchip,.ck'))};
+ }
+ function freshCard(c,gh){
+  const b=c.querySelector('.card-main b'),p=c.querySelector('.card-main .pv');
+  if(b)b.textContent=gh.title||'Không có tiêu đề';
+  if(p)p.textContent=gh.text.replace(/\s+/g,' ').slice(0,140)||p.textContent;
+ }
+ const R=16;
+ function clipFor(er,rect,s){return `inset(0px 0px ${Math.max(0,er.height-rect.height/s)}px 0px round ${R/s}px)`}
+ const CLIP0='inset(0px 0px 0px 0px round 0px)';
+
+ /* #ed phóng to từ vị trí thẻ */
+ function expandEd(cr){
+  const er=ED_.getBoundingClientRect();if(!er.width)return;
+  const s=Math.min(1,cr.width/er.width),dx=cr.left-er.left,dy=cr.top-er.top,lc=lineColor();
+  ED_.classList.add('ystg-fly');
+  const a=ED_.animate([
+   {transform:`translate(${dx}px,${dy}px) scale(${s})`,clipPath:clipFor(er,cr,s),opacity:0,boxShadow:`inset 0 0 0 ${2/s}px ${lc}`},
+   {opacity:1,offset:.2},
+   {transform:'translate(0px,0px) scale(1)',clipPath:CLIP0,opacity:1,boxShadow:`inset 0 0 0 0px ${lc}`}
+  ],{duration:DUR,easing:EASE});
+  const done=()=>ED_.classList.remove('ystg-fly');a.onfinish=done;a.oncancel=done;
+ }
+ /* trang cũ thu nhỏ về thẻ ở sidebar */
+ function shrinkGhost(gh,tr,dur){
+  const er=gh.er,s=Math.min(1,tr.width/er.width),dx=tr.left-er.left,dy=tr.top-er.top,lc=lineColor();
+  const g=gh.el;g.style.boxShadow=`inset 0 0 0 2px ${lc}`;
+  APP.insertBefore(g,ED_);junk.push(g);
+  const a=g.animate([
+   {transform:'translate(0px,0px) scale(1)',clipPath:CLIP0,opacity:1},
+   {opacity:1,offset:.55},
+   {transform:`translate(${dx}px,${dy}px) scale(${s})`,clipPath:clipFor(er,tr,s),opacity:0}
+  ],{duration:dur,easing:EASE,fill:'forwards'});
+  a.onfinish=()=>{try{g.remove()}catch(e){}};
+ }
+ function fadeIn(c,dur){
+  c.animate([{opacity:0,transform:'scale(.96)'},{opacity:0,transform:'scale(.96)',offset:.5},{opacity:1,transform:'none'}],{duration:dur,easing:EASE});
+ }
+ function flip(tops){
+  CARDS.querySelectorAll('.card:not(.ystg-hid)').forEach(c=>{
+   if(!tops.has(c))return;const d=tops.get(c)-c.getBoundingClientRect().top;
+   if(Math.abs(d)>.5)c.animate([{transform:`translateY(${d}px)`},{transform:'none'}],{duration:DUR,easing:EASE});
+  });
+ }
+ function endRun(){clearTimeout(runT);runT=setTimeout(()=>{if(!isOpen()||true){HTML.classList.remove('ystg-run');kill()}},DUR+80)}
+
+ /* --- bấm thẻ: mở / chuyển ghi chú --- */
+ CARDS.addEventListener('click',e=>{
+  if(!isPC())return;
+  const c=e.target.closest&&e.target.closest('.card[data-nid]');if(!c||c.classList.contains('ystg-hid'))return;
+  if(e.target.closest('button'))return;
+  const bb=document.getElementById('bulkbar');if(bb&&!bb.hidden)return;
+  const my=++tok,wasOpen=isOpen()&&openId!=null,prev=openId,cr=c.getBoundingClientRect();
+  const tops=new Map();CARDS.querySelectorAll('.card:not(.ystg-hid)').forEach(x=>tops.set(x,x.getBoundingClientRect().top));
+  const gh=wasOpen?makeGhost():null;
+  let eg=null;
+  if(!wasOpen&&!still()){const src=ED_.querySelector('#edEmpty');if(src){const er=ED_.getBoundingClientRect(),ar=appRect();eg=document.createElement('div');eg.className='ystg-eg';eg.style.cssText=`left:${er.left-ar.left}px;top:${er.top-ar.top}px;width:${er.width}px;height:${er.height}px`;eg.innerHTML=src.innerHTML;}}
+  const cg=still()?null:c.cloneNode(true);
+  if(cg){cg.classList.add('ystg-cg');cg.removeAttribute('data-nid');cg.style.cssText=`left:${cr.left}px;top:${cr.top}px;width:${cr.width}px;height:${cr.height}px`}
+  requestAnimationFrame(()=>{
+   if(my!==tok||!isOpen()){return}
+   kill();openId=c.dataset.nid;
+   const pc=wasOpen?cardOf(prev):null;
+   c.classList.add('ystg-hid');
+   if(pc&&gh&&!gh.blank){pc.classList.remove('ystg-hid');freshCard(pc,gh)}
+   if(still())return;
+   HTML.classList.add('ystg-run');
+   if(pc&&gh&&!gh.blank){shrinkGhost(gh,pc.getBoundingClientRect(),DUR);fadeIn(pc,DUR)}
+   flip(tops);
+   if(eg){ED_.after(eg);junk.push(eg);eg.animate([{opacity:1},{opacity:0}],{duration:240,easing:'ease-out',fill:'forwards'})}
+   if(cg){document.body.append(cg);junk.push(cg);cg.animate([{opacity:1},{opacity:0,transform:'scale(.97)'}],{duration:260,easing:'ease-out',fill:'forwards'})}
+   expandEd(cr);endRun();
+  });
+ },true);
+
+ /* --- thoát ghi chú: thu về dạng mini ở sidebar --- */
+ let lastGh=null;
+ const snap=()=>{if(isPC()&&isOpen())try{lastGh=makeGhost()}catch(e){}};
+ /* chụp nội dung trang ngay trước khi nút thoát chạy */
+ ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,snap,true));
+ new MutationObserver(ms=>{
+  for(const m of ms){
+   const was=(m.oldValue||'').split(/\s+/).includes('off'),now=isOpen()===false;
+   if(was===now)continue;
+   if(now){ /* vừa thoát */
+    const closedId=openId;openId=null;const my=++tok;
+    const gh=lastGh;lastGh=null;
+    if(!isPC()||still()||!gh||gh.blank)return;
+    gh.er=ED_.getBoundingClientRect();
+    requestAnimationFrame(()=>{
+     if(my!==tok)return;
+     const cards=[...CARDS.querySelectorAll('.card[data-nid]')];
+     /* thẻ vừa hiện lại: thẻ mới nhất được cập nhật (đứng đầu) hoặc thẻ khớp tiêu đề */
+     let c=cardOf(closedId)||cards.find(x=>{const b=x.querySelector('.card-main b');return b&&b.textContent===(gh.title||'Không có tiêu đề')})||cards[0];
+     if(!c)return;
+     const cr=c.getBoundingClientRect(),n=c.nextElementSibling;
+     const sh=cr.height+GAP;
+     kill();HTML.classList.add('ystg-run');
+     let tr=cr;const box=CARDS.getBoundingClientRect();
+     if(tr.bottom>box.bottom||tr.top<box.top){const y=Math.min(Math.max(tr.top,box.top),box.bottom-tr.height);tr=new DOMRect(tr.left,y,tr.width,tr.height)}
+     shrinkGhost(gh,tr,DUR);fadeIn(c,DUR);
+     for(let x=n;x;x=x.nextElementSibling)if(x.classList.contains('card'))x.animate([{transform:`translateY(${-sh}px)`},{transform:'none'}],{duration:DUR,easing:EASE});
+     endRun();
+    });
+   }
+  }
+ }).observe(ED_,{attributes:true,attributeFilter:['class'],attributeOldValue:true});
+})();
+</script>
+
+<style id="yWaveFix">
+/* ===== Ánh sáng phát sáng mờ kiểu Gemini (PC + PE) =====
+   Các vầng sáng mềm (radial-gradient + blur lớn) trôi chậm và "thở" ở đáy màn hình,
+   mờ dần hai bên nên không bị cắt ở mép cột danh sách. Chỉ dùng transform nên mượt. */
+@keyframes ywGlowA{from{transform:translate3d(-2.5%,2%,0) scale(1,.88)}to{transform:translate3d(2.5%,-4%,0) scale(1.05,1.14)}}
+@keyframes ywGlowB{from{transform:translate3d(2.5%,-2%,0) scale(1.04,1.12)}to{transform:translate3d(-2.5%,3%,0) scale(1,.9)}}
+@media(min-width:640px){
+ html[data-view=pc] #ed{overflow-x:clip}
+ html[data-view=pc] #ed::before,html[data-view=pc] #ed::after{
+  left:0;right:0;bottom:-46%;height:90%;transform-origin:50% 100%;
+  background-repeat:no-repeat;background-size:100% 100%;background-position:0 0;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 12%,#000 88%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 12%,#000 88%,transparent 100%);
+  -webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  filter:blur(36px) saturate(1.2)}
+ html[data-view=pc] #ed::before{
+  background-image:radial-gradient(ellipse 30% 36% at 18% 64%,rgba(255,92,120,.8),transparent 100%),radial-gradient(ellipse 34% 40% at 50% 70%,rgba(255,140,90,.72),transparent 100%),radial-gradient(ellipse 30% 36% at 82% 64%,rgba(240,70,80,.78),transparent 100%);
+  animation:ywGlowA 8s ease-in-out infinite alternate}
+ html[data-view=pc] #ed::after{
+  background-image:radial-gradient(ellipse 74% 30% at 50% 72%,rgba(255,150,120,.5),transparent 100%),radial-gradient(ellipse 28% 32% at 32% 66%,rgba(255,170,110,.6),transparent 100%),radial-gradient(ellipse 28% 34% at 68% 66%,rgba(255,107,129,.58),transparent 100%);
+  animation:ywGlowB 11s ease-in-out infinite alternate}
+}
+/* ===== PE: một lớp sáng nằm SAU nội dung, không chồng 2 lớp, không đè thẻ ghi chú ===== */
+html:not([data-view=pc]) #app::before{display:none!important}
+html:not([data-view=pc]) #list{isolation:isolate}
+html:not([data-view=pc]) #list::before,html:not([data-view=pc]) #list::after{
+ content:"";position:absolute;left:0;right:0;bottom:-26%;height:62%;z-index:-1;pointer-events:none;
+ transform-origin:50% 100%;background-repeat:no-repeat;background-size:100% 100%;
+ -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 12%,#000 88%,transparent 100%);
+ mask-image:linear-gradient(90deg,transparent 0,#000 12%,#000 88%,transparent 100%);
+ filter:blur(26px) saturate(1.15);will-change:transform;transition:opacity .38s ease}
+html:not([data-view=pc]) #list::before{
+ opacity:.7;
+ background-image:radial-gradient(ellipse 34% 36% at 22% 66%,rgba(255,92,120,.8),transparent 100%),radial-gradient(ellipse 36% 40% at 62% 70%,rgba(255,140,90,.72),transparent 100%);
+ animation:ywGlowA 7s ease-in-out infinite alternate}
+html:not([data-view=pc]) #list::after{
+ opacity:.6;
+ background-image:radial-gradient(ellipse 70% 30% at 50% 72%,rgba(255,150,120,.5),transparent 100%),radial-gradient(ellipse 30% 34% at 80% 64%,rgba(229,50,45,.55),transparent 100%);
+ animation:ywGlowB 9s ease-in-out infinite alternate}
+html:not([data-view=pc]) #app:has(#list.off) #list::before,html:not([data-view=pc]) #app:has(#list.off) #list::after{opacity:0}
+html.y-lite:not([data-view=pc]) #list::before,html.y-lite:not([data-view=pc]) #list::after{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){
+ html[data-view=pc] #ed::before,html[data-view=pc] #ed::after,
+ html:not([data-view=pc]) #list::before,html:not([data-view=pc]) #list::after{animation:none!important}}
+</style>
 </body></html>
 <!-- yume18.3 -->
