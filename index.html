@@ -291,7 +291,7 @@ html[data-theme=dark] #recov .rv-lm{background:rgba(40,40,44,.92)}
 #sfxVol::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:28px;height:28px;margin-top:-10px;border-radius:50%;background:var(--bg);border:1px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.22)}
 #sfxVol::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--bg);border:1px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.22)}
 #sfxVol:focus-visible{outline:2px solid var(--red);outline-offset:4px;border-radius:99px}
-.brand-card{text-align:center;padding:22px}.brand-card b{font-size:22px}.brand-card b i{color:var(--red);font-style:normal}.brand-card small{display:block;margin-top:4px}.brand-card small i{color:var(--red);font-style:normal}html[data-view=pc] .brand-actions{display:none!important}
+.brand-card{text-align:center;padding:22px}.brand-card b{font-size:22px}.brand-card b i{color:var(--red);font-style:normal}.brand-card small{display:block;margin-top:4px}.brand-card small i{color:var(--red);font-style:normal}html[data-view=pc] #installApp{display:none!important}/* PC: chỉ ẩn nút cài app, vẫn giữ nút Thông tin bản cập nhật */
 #restoreFile{display:none}
 
 /* ----- Chat AI context checkbox, restore dialog, view switch ----- */
@@ -2361,7 +2361,7 @@ html body #folderbar[hidden]{display:none!important}
 <section id="settings">
  <div class="settings-top"><div class="top"><button class="ib" id="settingsBack" data-i="back" aria-label="Quay lại"></button><h2 style="margin:0;font-size:24px;flex:1">Cài đặt</h2></div></div>
  <div class="settings-list">
-  <div class="setting-card brand-card"><b>Yume<i>.</i> Writing</b><small>Design by Yume<i>.</i> System - Đỗ Đạt</small><small>Truly Creative · Truly Smart</small><small>Version 19.0</small><div class="settings-actions brand-actions" style="display:grid;gap:10px;grid-template-columns:1fr;margin-top:10px"><button class="pill red" id="installApp" type="button" style="width:100%">Cài thành app cho điện thoại</button><button class="pill" id="checkUpdate" type="button" hidden style="display:none">Cập nhật bản mới nhất</button></div></div>
+  <div class="setting-card brand-card"><b>Yume<i>.</i> Writing</b><small>Design by Yume<i>.</i> System - Đỗ Đạt</small><small>Truly Creative · Truly Smart</small><small>Version 19.1</small><div class="settings-actions brand-actions" style="display:grid;gap:10px;grid-template-columns:1fr;margin-top:10px"><button class="pill" id="changelogBtn" type="button" style="width:100%">Thông tin bản cập nhật</button><button class="pill red" id="installApp" type="button" style="width:100%">Cài thành app cho điện thoại</button><button class="pill" id="checkUpdate" type="button" hidden style="display:none">Cập nhật bản mới nhất</button></div></div>
   <div class="setting-card">
    <div><div class="setting-title">Giao diện</div><div class="setting-sub">Chuyển giữa chế độ sáng và tối.</div></div>
    <div class="setting-row"><div><b id="themeLabel">Chế độ sáng</b><div class="setting-sub">Yume Writing sẽ ghi nhớ lựa chọn này.</div></div><button class="switch" id="themeSwitch" aria-label="Đổi chế độ sáng tối"></button></div>
@@ -7294,7 +7294,7 @@ html[data-theme=dark] .yc-side{border-color:rgba(255,255,255,.16)!important;box-
 </style>
 
 <div id="yChat" role="dialog" aria-label="Yume. AI Chat"><div class="yc-pop"><div class="yc-glow" aria-hidden="true"><i></i></div><div class="yc-grab" id="ycGrab"></div>
- <aside class="yc-side"><div class="yc-sh"><b>Yume<i>.</i> Chat</b><button class="yc-new" type="button" id="ycNew">＋ Đoạn chat mới</button></div><div class="yc-list" id="ycList"></div></aside>
+ <aside class="yc-side"><div class="yc-sh"><b>Yume<i>.</i> Chat</b><button class="yc-new" type="button" id="ycNew">＋ Đoạn chat mới</button></div><div class="yc-list" id="ycList"></div><div class="yc-sf"><button type="button" class="yc-tg" id="ycBlurT" role="switch" aria-checked="true"><span>Làm mờ phía trên</span><i class="yc-sw"></i></button></div></aside>
  <div class="yc-scrim" id="ycScrim"></div>
  <section class="yc-main">
   <header class="yc-hd">
@@ -7844,6 +7844,8 @@ function yDelatex(s){
  document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.act[data-a="chat"],#qChat');if(b){e.stopImmediatePropagation();e.preventDefault();open()}},true);
  $('#ycBack').onclick=()=>{killSheet();close(false)};const pcMode=()=>document.documentElement.getAttribute('data-view')==='pc'&&matchMedia('(min-width:640px)').matches;
  try{if(localStorage.getItem('yume.ycSide')==='0')el.classList.add('pcc')}catch(e){}
+ /* nút bật/tắt hiệu ứng làm mờ dần phía trên (progressive blur) */
+ {const tg=$('#ycBlurT');if(tg){const set=(on,save)=>{el.classList.toggle('noblur',!on);tg.setAttribute('aria-checked',on?'true':'false');if(save)try{localStorage.setItem('yume.ycBlur',on?'1':'0')}catch(e){}};let on0=true;try{on0=localStorage.getItem('yume.ycBlur')!=='0'}catch(e){}set(on0,false);tg.onclick=()=>set(tg.getAttribute('aria-checked')!=='true',true)}}
  $('#ycMenu').onclick=()=>{if(pcMode()){const c=el.classList.toggle('pcc');try{localStorage.setItem('yume.ycSide',c?'0':'1')}catch(e){}}else el.classList.toggle('side')};$('#ycScrim').onclick=()=>el.classList.remove('side');
  const nw=()=>{if(busy)return;pend=[];renderTray();fresh();renderList();el.classList.remove('side');ta.focus()};$('#ycNew').onclick=nw;$('#ycNew2').onclick=nw;
  /* Giữ bàn phím sau khi bấm Gửi/Dừng: nút không được giành focus của ô nhập (nếu không, ô nhập blur và bàn phím tự hạ xuống). Dự phòng: nếu focus vẫn bị mất thì trả lại cho ô nhập ngay trong cú chạm. */
@@ -9369,9 +9371,10 @@ layout();sync();
 /* ảnh nền tài khoản (kiểu trang cá nhân) */
 #ySyncCard{position:relative;overflow:hidden}
 #ySyncCard>*{position:relative;z-index:1}
-#ySyncCard.yc{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;color:#fff;border-color:transparent!important}
+#ySyncCard.yc{background:#0b0b0e!important;color:#fff;border-color:transparent!important}
+#yCvBg{position:absolute!important;inset:0;z-index:0!important;display:block;transform:scale(1.04);background-size:cover;background-position:center;background-repeat:no-repeat;pointer-events:none}
 html html body #ySyncCard.yc{border:0!important;outline:0!important;box-shadow:0 10px 30px rgba(0,0,0,.28)!important;background-clip:border-box!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
-#ySyncCard.yc::before{content:"";position:absolute;inset:-2px;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.14) 0%,rgba(0,0,0,.1) 30%,rgba(0,0,0,.74) 100%)}
+#ySyncCard.yc::before{display:none}
 #ySyncCard.yc #yAcc{margin-top:92px}
 #ySyncCard.yc #yAcc>div:first-child{box-shadow:0 0 0 3px rgba(255,255,255,.92),0 4px 14px rgba(0,0,0,.35)}
 #ySyncCard.yc #yAcc>div:nth-child(2)>div:first-child{font-size:22px!important;text-shadow:0 1px 8px rgba(0,0,0,.55)}
@@ -9379,12 +9382,46 @@ html html body #ySyncCard.yc{border:0!important;outline:0!important;box-shadow:0
 #ySyncCard.yc #yPanel>div>div:not(.setting-sub){background:linear-gradient(145deg,rgba(255,255,255,.62),rgba(255,255,255,.34))!important;color:var(--ink);text-shadow:none;border:1px solid rgba(255,255,255,.8);-webkit-backdrop-filter:blur(26px) saturate(1.8) brightness(1.06);backdrop-filter:blur(26px) saturate(1.8) brightness(1.06);box-shadow:0 14px 38px rgba(20,30,60,.28),0 0 0 .5px rgba(60,66,90,.16),inset 0 1.5px 1px rgba(255,255,255,.95),inset 0 0 18px rgba(255,255,255,.28)}
 /* không dùng opacity trên khung chứa: opacity<1 làm backdrop-filter (blur) tắt cho tới khi chạy xong → hiệu ứng bị hiện trễ */
 #ySyncCard.yc #yPanel{opacity:1!important;transition:grid-template-rows .35s cubic-bezier(.22,1,.36,1)!important}
-#ySyncCard.yc #yPanel>div>div:not(.setting-sub){will-change:backdrop-filter;transform:translateZ(0)}
 #ySyncCard.yc #yPanel button{border-top-color:rgba(255,255,255,.5)!important;transition:background .18s}
 #ySyncCard.yc #yPanel button:active{background:rgba(255,255,255,.34)}
 html[data-theme=dark] #ySyncCard.yc #yPanel>div>div:not(.setting-sub){background:linear-gradient(145deg,rgba(70,70,80,.58),rgba(30,30,38,.5))!important;border-color:rgba(255,255,255,.2);box-shadow:0 14px 38px rgba(0,0,0,.55),0 0 0 .5px rgba(255,255,255,.1),inset 0 1.5px 1px rgba(255,255,255,.2)}
 html[data-theme=dark] #ySyncCard.yc #yPanel button{border-top-color:rgba(255,255,255,.14)!important}
 @media(prefers-color-scheme:dark){html:not([data-theme=light]) #ySyncCard.yc #yPanel>div>div:not(.setting-sub){background:linear-gradient(145deg,rgba(70,70,80,.58),rgba(30,30,38,.5))!important;border-color:rgba(255,255,255,.2);box-shadow:0 14px 38px rgba(0,0,0,.55),0 0 0 .5px rgba(255,255,255,.1),inset 0 1.5px 1px rgba(255,255,255,.2)}html:not([data-theme=light]) #ySyncCard.yc #yPanel button{border-top-color:rgba(255,255,255,.14)!important}}
+</style>
+<style id="yChatBlurCss">
+/* nút tắt/bật làm mờ phía trên trong menu mở rộng của Yume. AI Chat */
+.yc-sf{flex:none;padding:6px 10px 12px}
+html body #yChat .yc-tg{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid rgba(255,255,255,.72);background:rgba(255,255,255,.42)!important;-webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5);color:var(--ink);border-radius:16px;padding:11px 14px;font:inherit;font-size:14px;font-weight:600;text-align:left;cursor:pointer;box-shadow:inset 0 1px rgba(255,255,255,.8);transition:transform .15s}
+html body #yChat .yc-tg:active{transform:scale(.97)}
+.yc-sw{position:relative;flex:none;width:42px;height:26px;border-radius:99px;background:rgba(127,127,127,.38);transition:background .28s}
+.yc-sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.3);transition:transform .34s cubic-bezier(.34,1.4,.5,1)}
+.yc-tg[aria-checked=true] .yc-sw{background:var(--red)}
+.yc-tg[aria-checked=true] .yc-sw::after{transform:translateX(16px)}
+html[data-theme=dark] body #yChat .yc-tg{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.16);box-shadow:inset 0 1px rgba(255,255,255,.12)}
+@media(prefers-color-scheme:dark){html:not([data-theme=light]) body #yChat .yc-tg{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.16);box-shadow:inset 0 1px rgba(255,255,255,.12)}}
+#yChat .ycg{transition:opacity .35s ease,visibility .35s}
+#yChat.noblur .ycg{opacity:0;visibility:hidden}
+/* Tắt "Làm mờ phía trên" → tiêu đề "Yume. AI Chat" nằm trong viên thuốc kính mờ (blur glass) để không dính vào văn bản trôi bên dưới.
+   Hình dạng viên thuốc luôn có sẵn (trong suốt) nên bật/tắt chỉ đổi lớp kính, chữ không bị nhảy vị trí. */
+html body #yChat .yc-t{box-sizing:border-box;height:40px;line-height:38px;padding:0 18px;white-space:nowrap;border:1px solid transparent;border-radius:99px;
+ transition:background .35s ease,border-color .35s ease,box-shadow .35s ease,-webkit-backdrop-filter .35s ease,backdrop-filter .35s ease}
+/* PC: nút ☰ luôn hiện (cả khi bảng thông tin mở) → chừa khoảng cách để viên thuốc không dính vào nút */
+html[data-view=pc] body #yChat .yc-t{flex:0 1 auto;margin:0 auto 0 6px;padding:0 18px;text-align:left}
+html:not([data-view=pc]) body #yChat .yc-t{left:50%;right:auto;width:max-content;max-width:calc(100% - 210px);transform:translateX(-50%);padding:0 18px;overflow:hidden;text-overflow:ellipsis}
+html body #yChat.noblur .yc-t{background:rgba(255,255,255,.42);border-color:rgba(255,255,255,.9);
+ box-shadow:0 0 0 1px rgba(110,110,130,.16),inset 0 1px 0 rgba(255,255,255,.95),0 6px 16px rgba(30,30,45,.08);
+ -webkit-backdrop-filter:blur(16px) saturate(1.6);backdrop-filter:blur(16px) saturate(1.6)}
+/* Chế độ tối: thanh bên PC từng bị luật nền trắng .36 (!important) đè nên ra màu xám → đổi sang xám đen */
+html[data-theme=dark][data-view=pc] body #yChat .yc-side,html[data-theme=dark] body #yChat .yc-side{background:rgba(9,9,12,.66)!important;border-right-color:rgba(255,255,255,.08)!important}
+html[data-theme=dark] body #yChat.noblur .yc-t{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);
+ box-shadow:0 0 0 1px rgba(255,255,255,.06),inset 0 1px 0 rgba(255,255,255,.16),0 6px 16px rgba(0,0,0,.25)}
+</style>
+<style id="yCanvasIsland">
+/* Canvas mode: các nút trên thanh công cụ được nâng lên 14px → 3 viên thuốc (bấm giờ, ghi âm, AI) nâng theo cho thẳng hàng.
+   Dùng thuộc tính "translate" (độc lập với transform) để không xung đột với hiệu ứng bấm / xuất hiện / FLIP của viên thuốc. */
+html body #ed>.top #clk,html body #ed>.top #recpill,html body #ed>.top #aipill{transition:transform .16s,opacity .22s,translate .5s cubic-bezier(.22,1,.36,1)}
+html body #ed.canvas-mode>.top #clk,html body #ed.canvas-mode>.top #recpill,html body #ed.canvas-mode>.top #aipill{translate:0 -14px}
+@media(prefers-reduced-motion:reduce){html body #ed>.top #clk,html body #ed>.top #recpill,html body #ed>.top #aipill{transition:none}}
 </style>
 <style id="yUpdCss">
 .yupd-ov{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:20px;background:rgba(246,248,255,.2);-webkit-backdrop-filter:blur(13px) saturate(135%);backdrop-filter:blur(13px) saturate(135%);animation:yupdO .25s ease both}
@@ -9508,7 +9545,7 @@ function ui(){
  else{const AVs=AV.replace('width:88px;height:88px','width:52px;height:52px').replace('font-size:36px','font-size:22px');
   h=`<div id="yAcc" role="button" aria-expanded="${pOpen}" style="display:flex;align-items:center;gap:12px;cursor:pointer"><div style="${AVs};flex:none"><img id="yAvImg" alt="" style="display:none;width:100%;height:100%;object-fit:cover"><span id="yAvIni">${E((nm[0]||'Y').toUpperCase())}</span></div><div style="flex:1;min-width:0"><div style="font-size:17px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${E(nm)}</div><div class="setting-sub" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dot};margin-right:6px"></span>${lab}</div></div><span id="yChev" style="opacity:.4;font-size:24px;transition:transform .35s cubic-bezier(.22,1,.36,1);transform:rotate(${pOpen?90:0}deg)">›</span></div>`+`<div id="yPanel" style="display:grid;grid-template-rows:${pOpen?'1fr':'0fr'};opacity:${pOpen?1:0};visibility:${pOpen?'visible':'hidden'};transition:grid-template-rows .35s cubic-bezier(.22,1,.36,1),opacity .28s ease"><div style="overflow:hidden;min-height:0"><div class="setting-sub" style="word-break:break-all;margin-top:2px">${E(user.email||'')}</div><div style="${grp};margin-top:8px"><button type="button" id="yAvChg" style="${row.replace('border-top:1px solid rgba(128,128,128,.18)','border-top:0')}">Đổi ảnh đại diện<span style="opacity:.4">›</span></button><button type="button" id="yCvChg" style="${row}">Đổi ảnh nền<span style="opacity:.4">›</span></button>${getCv()?`<button type="button" id="yCvDel" style="${row}">Xóa ảnh nền<span style="opacity:.4">›</span></button>`:''}<button type="button" id="yNameBtn" style="${row}">Đổi tên<span style="opacity:.5;font-weight:500;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${E(nm)}</span></button>${editName?`<div id="yNameRow" style="display:flex;gap:8px;align-items:center;padding:8px 16px 12px"><input class="settings-input" id="yNameIn" maxlength="30" value="${E(nm)}" style="flex:1;margin:0"><button class="pill red" id="yNameOk" type="button">Lưu</button></div>`:''}<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-top:1px solid rgba(128,128,128,.18)"><b>Tự động đồng bộ</b><button class="switch ${on()?'on':''}" id="ySyncSw" aria-label="Bật tắt đồng bộ"></button></div><button type="button" id="ySyncNow" style="${row}">Đồng bộ ngay<span style="opacity:.4">›</span></button><button type="button" id="ySignOut" style="${row};color:#e5302d">Đăng xuất</button></div></div></div>`}
  card.innerHTML=h;
- {const cv=user?getCv():'';card.classList.toggle('yc',!!cv);if(card._cv!==cv){card._cv=cv;card.style.backgroundImage=cv&&/^data:image\//.test(cv)?'url("'+cv+'")':''}}
+ {const cv=user?getCv():'';card.classList.toggle('yc',!!cv);if(card._cv!==cv){card._cv=cv;card.style.backgroundImage='';card._bg=null;if(cv&&/^data:image\//.test(cv)){const bg=document.createElement('i');bg.id='yCvBg';bg.style.backgroundImage='linear-gradient(180deg,rgba(0,0,0,.08) 0%,rgba(0,0,0,0) 42%,rgba(0,0,0,.35) 72%,rgba(0,0,0,.78) 100%),url("'+cv+'")';card._bg=bg}}if(card._bg)card.prepend(card._bg)}
  const im=$('#yAvImg'),d=getAv();if(im&&d&&/^data:image\//.test(d)){im.src=d;im.style.display='block';$('#yAvIni').style.display='none'}
  const b=(i,f)=>{const e=$(i);if(e)e.onclick=f};
  b('#ySbSave',()=>{const u=$('#ySbUrl').value.trim().replace(/\/+$/,''),k=$('#ySbKey').value.trim();if(!/^https:\/\/[^\s]+\.supabase\.co$/.test(u)||k.length<20){toast('URL hoặc key chưa đúng');return}ls('yume.sb.url',u);ls('yume.sb.key',k);location.reload()});
@@ -9682,6 +9719,118 @@ async function go(){
 boot();
 })();
 
+</script>
+<style id="yTbMorph">
+/* ===== Morph thanh công cụ: màn hình chính <-> trong ghi chú ===== */
+html.ymorph #list.off{transform:none!important;transition:opacity .16s linear,visibility 0s .16s!important}
+html.ymorph #ed{transition:opacity .2s linear,visibility 0s!important}
+html.ymorph:not([data-view=pc]) #ed{transform:none!important}
+html.ymorph body #ed #tools,html.ymorph-out body #ed #tools{overflow:hidden;transition:none!important}
+html.ymorph body #ed #tools{will-change:width,height,left,right,margin-left,bottom}
+/* tắt blur nền trong lúc chạy cho nhẹ máy */
+html.ymorph body #ed #tools,html.ymorph-out body #ed #tools{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* ---- thu về khi thoát ghi chú ---- */
+html.ymorph-out #list{transform:none!important}
+html.ymorph-out[data-view=pc] #ed.off>#tools{display:flex!important}
+html.ymorph-out:not([data-view=pc]) #ed.off{transform:none!important;visibility:visible!important;opacity:1!important;background:transparent!important;transition:none!important;pointer-events:none!important}
+html.ymorph-out:not([data-view=pc]) #ed.off>*:not(#tools){opacity:0!important;transition:opacity .14s linear!important}
+html.ymorph-out:not([data-view=pc]) #ed.off>#tools{opacity:1!important}
+html:not([data-view=pc]) #ed.off>#tools{transition:none!important}/* hết animation thì ẩn ngay, không mờ lại */
+</style>
+<script id="yTbMorphJS">
+(()=>{
+ const ED_=document.getElementById('ed'),HTML=document.documentElement;
+ const noMotion=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
+ const isPCm=()=>HTML.getAttribute('data-view')==='pc'&&matchMedia('(min-width:640px)').matches;
+ const EASE='cubic-bezier(.22,1,.36,1)',BACK='cubic-bezier(.34,1.35,.5,1)';
+ let tok=0,lastQ=null,lastQT=0;
+ const cancelAll=t=>t.getAnimations({subtree:true}).forEach(a=>{try{a.cancel()}catch(e){}});
+ /* openNote nằm trong closure của script chính nên không bọc trực tiếp được:
+    ghi nhớ vị trí thanh #qbar ở màn hình chính, rồi bắt lúc #ed mất / có lại class "off" */
+ const snap=()=>{const qb=document.getElementById('qbar');
+  if(!qb||qb.classList.contains('gone')||!ED_.classList.contains('off'))return;
+  const r=qb.getBoundingClientRect();if(r.width>40&&r.height>20&&r.bottom>0){lastQ={left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height};lastQT=performance.now()}};
+ ['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,snap,true));
+ addEventListener('resize',()=>{setTimeout(snap,60)});
+ setTimeout(snap,900);
+ new MutationObserver(ms=>{
+  for(const m of ms){
+   const was=(m.oldValue||'').split(/\s+/).includes('off'),now=ED_.classList.contains('off');
+   if(was===now)continue;
+   const qb=document.getElementById('qbar');
+   if(noMotion()||!lastQ||!qb||performance.now()-lastQT>600000)return;
+   const closing=!was&&now,pc=isPCm();
+   HTML.classList.remove(closing?'ymorph':'ymorph-out');HTML.classList.add(closing?'ymorph-out':'ymorph');
+   try{morph(lastQ,pc,qb,closing)}catch(e){HTML.classList.remove('ymorph','ymorph-out')}
+  }
+ }).observe(ED_,{attributes:true,attributeFilter:['class'],attributeOldValue:true});
+ new MutationObserver(()=>{setTimeout(snap,450)}).observe(document.getElementById('list'),{attributes:true,attributeFilter:['class']});
+ function morph(qr,pc,qb,closing){
+  const cls=closing?'ymorph-out':'ymorph',t=document.getElementById('tools');
+  if(!t||!t.animate||t.offsetParent!==ED_){HTML.classList.remove(cls);return}
+  const me=++tok,er=ED_.getBoundingClientRect(),H=ED_.clientHeight,W=ED_.clientWidth;
+  const tw=t.offsetWidth,th=t.offsetHeight,tl=t.offsetLeft,tb=H-(t.offsetTop+th);
+  const ql=qr.left-er.left,qbm=H-(qr.bottom-er.top);
+  let kf,dur;
+  if(pc){
+   kf=[{width:qr.width+'px',height:qr.height+'px',marginLeft:ql+'px',bottom:qbm+'px'},
+       {width:(tw*.9)+'px',height:(th+2)+'px',marginLeft:(tl+(tw*.1))+'px',bottom:tb+'px',offset:.62},
+       {width:tw+'px',height:th+'px',marginLeft:tl+'px',bottom:tb+'px'}];
+   dur=closing?520:760;
+  }else{
+   kf=[{left:ql+'px',right:(W-ql-qr.width)+'px',height:qr.height+'px',bottom:qbm+'px'},
+       {left:(tl-6)+'px',right:(W-tl-tw-6)+'px',height:(th-5)+'px',bottom:tb+'px',offset:.6},
+       {left:tl+'px',right:(W-tl-tw)+'px',height:th+'px',bottom:tb+'px'}];
+   dur=closing?440:520;
+  }
+  cancelAll(t);
+  if(closing){
+   /* thu về: đi ngược chuỗi keyframe, cuối chặng mờ dần để nhường chỗ cho dock/thanh ở màn hình chính */
+   kf=kf.slice().reverse().map((f,i,arr)=>{const o={...f};o.offset=i===0?0:i===arr.length-1?1:1-f.offset;return o});
+   if(pc)kf=[kf[0],kf[kf.length-1]];/* PC: co thẳng một nhịp, không có điểm dừng giữa chừng */
+   kf[kf.length-1].filter='opacity(0)';kf.splice(kf.length-1,0,{...kf[kf.length-1],filter:'opacity(1)',offset:.72});
+   kf.forEach(f=>{if(f.filter==null)f.filter='opacity(1)'});
+   kf.sort((a,b)=>a.offset-b.offset);
+   t.animate(kf,{duration:dur,easing:pc?'cubic-bezier(.5,0,.15,1)':'cubic-bezier(.4,0,.2,1)',fill:'forwards'});/* giữ trạng thái cuối, tránh thanh trắng bật lại */
+   [...t.children].forEach((b,i,all)=>b.animate([{opacity:1,transform:'none'},{opacity:0,transform:pc?'translateX(-30px) scale(.7)':'scale(.55)'}],
+     {duration:150,delay:(all.length-1-i)*14,easing:EASE,fill:'both'}));
+   if(pc&&qb&&qb.animate)qb.animate([{opacity:1,transform:'none'},{opacity:0,transform:'scale(.96)',offset:.3},{opacity:0,transform:'scale(.96)',offset:.55},{opacity:1,transform:'none'}],{duration:dur,easing:'linear'});
+  }else{
+   t.animate(kf,{duration:dur,easing:pc?'cubic-bezier(.55,.05,.2,1)':EASE});
+   [...t.children].forEach((b,i)=>{
+    b.animate(pc?[{opacity:0,transform:'translateX(-46px) scale(.7)'},{opacity:1,transform:'none'}]
+                :[{opacity:0,transform:'scale(.55)'},{opacity:1,transform:'none'}],
+     {duration:pc?420:340,delay:(pc?90:110)+i*(pc?55:35),easing:pc?EASE:BACK,fill:'backwards'});
+   });
+   if(pc&&qb&&qb.animate){
+    qb.animate([{opacity:1,transform:'none'},{opacity:0,transform:'scale(.96)',offset:.2},{opacity:0,transform:'scale(.96)',offset:.55},{opacity:1,transform:'none'}],{duration:dur+80,easing:'linear'});
+   }
+  }
+  setTimeout(()=>{if(me===tok){cancelAll(t);HTML.classList.remove(cls)}},dur+(closing?40:120));
+ }
+})();
+</script>
+<style id="yChangelogCss">
+.ychg-list{margin:2px 0 0;padding:0;list-style:none;display:grid;gap:10px;text-align:left}
+.ychg-list li{position:relative;padding-left:22px;font-size:14.5px;line-height:1.5;color:var(--ink)}
+.ychg-list li::before{content:"";position:absolute;left:4px;top:.55em;width:7px;height:7px;border-radius:50%;background:var(--red)}
+.ychg-ver{display:inline-block;margin:0 0 12px;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;color:var(--red);background:var(--rs)}
+</style>
+<script id="yChangelogJs">
+(()=>{
+ const btn=document.getElementById('changelogBtn');if(!btn)return;
+ const ITEMS=['Thêm animation cho thanh dock','Sửa lỗi vị trí Live Notch ở Canvas mode','Nút tắt Blur phần Yume. AI Chat'];
+ btn.onclick=()=>{
+  const o=document.createElement('div');o.className='yupd-ov';
+  o.innerHTML='<div class="yupd-card" role="dialog" aria-modal="true" aria-label="Thông tin bản cập nhật"><h3>Thông tin bản cập nhật</h3><span class="ychg-ver">Phiên bản 19.1</span><ul class="ychg-list"></ul><div class="yupd-b"><button type="button" class="pill red">Đã hiểu</button></div></div>';
+  const ul=o.querySelector('ul');ITEMS.forEach(t=>{const li=document.createElement('li');li.textContent=t;ul.append(li)});
+  const esc=e=>{if(e.key==='Escape'){e.stopPropagation();close()}};
+  const close=()=>{document.removeEventListener('keydown',esc,true);o.classList.add('out');setTimeout(()=>o.remove(),200)};
+  o.querySelector('button').onclick=close;
+  o.addEventListener('pointerdown',e=>{if(e.target===o)close()});
+  document.addEventListener('keydown',esc,true);document.body.append(o);
+ };
+})();
 </script>
 </body></html>
 <!-- yume18.3 -->
