@@ -9387,6 +9387,10 @@ html html body #ySyncCard.yc{border:0!important;outline:0!important;box-shadow:0
 html[data-theme=dark] #ySyncCard.yc #yPanel>div>div:not(.setting-sub){background:linear-gradient(145deg,rgba(70,70,80,.58),rgba(30,30,38,.5))!important;border-color:rgba(255,255,255,.2);box-shadow:0 14px 38px rgba(0,0,0,.55),0 0 0 .5px rgba(255,255,255,.1),inset 0 1.5px 1px rgba(255,255,255,.2)}
 html[data-theme=dark] #ySyncCard.yc #yPanel button{border-top-color:rgba(255,255,255,.14)!important}
 @media(prefers-color-scheme:dark){html:not([data-theme=light]) #ySyncCard.yc #yPanel>div>div:not(.setting-sub){background:linear-gradient(145deg,rgba(70,70,80,.58),rgba(30,30,38,.5))!important;border-color:rgba(255,255,255,.2);box-shadow:0 14px 38px rgba(0,0,0,.55),0 0 0 .5px rgba(255,255,255,.1),inset 0 1.5px 1px rgba(255,255,255,.2)}html:not([data-theme=light]) #ySyncCard.yc #yPanel button{border-top-color:rgba(255,255,255,.14)!important}}
+/* Chế độ sáng: bảng kính trên ảnh nền bị ăn màu ảnh (đỏ/xanh/xám loang từng khúc) → dùng lớp kính trắng đục đều màu, giảm saturate để không ám màu. Bản tối có luật riêng ở trên (đặc hiệu cao hơn) nên không bị ảnh hưởng. */
+html body #ySyncCard.yc #yPanel>div>div:not(.setting-sub){background:linear-gradient(180deg,rgba(252,252,254,.8),rgba(246,246,250,.72))!important;-webkit-backdrop-filter:blur(30px) saturate(1.05) brightness(1.04);backdrop-filter:blur(30px) saturate(1.05) brightness(1.04)}
+html body #ySyncCard.yc #yPanel button{border-top-color:rgba(120,120,140,.14)!important}
+html[data-theme=dark] body #ySyncCard.yc #yPanel button{border-top-color:rgba(255,255,255,.14)!important}
 </style>
 <style id="yChatBlurCss">
 /* nút tắt/bật làm mờ phía trên trong menu mở rộng của Yume. AI Chat */
@@ -9523,10 +9527,46 @@ const nmk=()=>'yume.name.'+(user?user.id:'');
 const getAv=()=>user?lg(avk()):null;
 const cvk=()=>'yume.cover.'+(user?user.id:''),getCv=()=>user?lg(cvk())||'':'';
 const setCv=d=>{ls(cvk(),d||'');ls(cvk()+'.ts',String(Date.now()));Q.add('__cover');saveMeta();ui();if(user&&on())queue('__cover')};
-function pickCover(){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files[0];if(!f)return;const im=new Image();im.onload=()=>{const W=1000,H=560,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d'),k=Math.max(W/im.width,H/im.height),w=im.width*k,h=im.height*k;g.drawImage(im,(W-w)/2,(H-h)/2,w,h);URL.revokeObjectURL(im.src);setCv(c.toDataURL('image/jpeg',.8));toast('Đã đổi ảnh nền')};im.onerror=()=>toast('Không đọc được ảnh này');im.src=URL.createObjectURL(f)};i.click()}
+/* ---------- Trình cắt ảnh (avatar tròn / ảnh nền theo khung): kéo để dời, chụm hai ngón / cuộn chuột / thanh trượt để phóng ---------- */
+function yCrop(file,o,done){
+ const url=URL.createObjectURL(file),im=new Image();
+ im.onerror=()=>{URL.revokeObjectURL(url);toast('Không đọc được ảnh này')};
+ im.onload=()=>{
+  if(!document.getElementById('yCropCss')){const st=document.createElement('style');st.id='yCropCss';st.textContent='#yCrop{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;background:rgba(10,10,14,.9);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);color:#fff;font-family:inherit;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);user-select:none;-webkit-user-select:none;animation:ycrIn .25s ease}@keyframes ycrIn{from{opacity:0}to{opacity:1}}#yCrop .ycr-h{text-align:center;font-weight:700;font-size:16px;padding:18px 16px 6px}#yCrop .ycr-st{position:relative;flex:1;min-height:0;overflow:hidden;touch-action:none;cursor:grab}#yCrop .ycr-st:active{cursor:grabbing}#yCrop .ycr-im{position:absolute;left:0;top:0;max-width:none!important;transform-origin:50% 50%;pointer-events:none;will-change:transform}#yCrop .ycr-fr{position:absolute;border:2px solid rgba(255,255,255,.95);box-shadow:0 0 0 9999px rgba(0,0,0,.58);pointer-events:none;box-sizing:border-box}#yCrop .ycr-fr.rd{border-radius:50%}#yCrop .ycr-fr:not(.rd)::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 33.2%,rgba(255,255,255,.28) 33.3%,transparent 33.5%,transparent 66.5%,rgba(255,255,255,.28) 66.6%,transparent 66.8%),linear-gradient(180deg,transparent 33.2%,rgba(255,255,255,.28) 33.3%,transparent 33.5%,transparent 66.5%,rgba(255,255,255,.28) 66.6%,transparent 66.8%)}#yCrop .ycr-ch{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:10px 12px 0}#yCrop .ycr-ch button{border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;border-radius:99px;padding:7px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}#yCrop .ycr-ch button.on{background:#fff;color:#1c1c1e;border-color:#fff}#yCrop .ycr-z{display:flex;align-items:center;gap:12px;padding:14px 24px 4px;max-width:520px;width:100%;box-sizing:border-box;margin:0 auto}#yCrop .ycr-z span{font-size:20px;line-height:1;opacity:.8;width:16px;text-align:center}#yCrop .ycr-r{flex:1;accent-color:#e5322d;height:28px}#yCrop .ycr-b{display:flex;gap:12px;padding:10px 16px 18px;max-width:520px;width:100%;box-sizing:border-box;margin:0 auto}#yCrop .ycr-b button{flex:1;height:46px;border-radius:99px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;font:inherit;font-size:15px;font-weight:700;cursor:pointer}#yCrop .ycr-b .ycr-ok{background:linear-gradient(135deg,#ff5c56,#e5322d);border-color:rgba(255,255,255,.4)}';document.head.appendChild(st)}
+  const iw=im.naturalWidth,ih=im.naturalHeight;let asp=o.aspect,x=0,y=0,z=1,minS=1,fw=0,fh=0;
+  const ov=document.createElement('div');ov.id='yCrop';
+  ov.innerHTML='<div class="ycr-h"></div><div class="ycr-st"><img class="ycr-im" alt="" draggable="false"><div class="ycr-fr"></div></div>'+(o.chips?'<div class="ycr-ch"></div>':'')+'<div class="ycr-z"><span>−</span><input class="ycr-r" type="range" min="0" max="100" value="0" aria-label="Phóng to"><span>+</span></div><div class="ycr-b"><button type="button" class="ycr-c">Hủy</button><button type="button" class="ycr-ok">Xong</button></div>';
+  const q=s=>ov.querySelector(s),st=q('.ycr-st'),img=q('.ycr-im'),fr=q('.ycr-fr'),rg=q('.ycr-r');
+  q('.ycr-h').textContent=o.title;img.src=url;img.style.width=iw+'px';img.style.height=ih+'px';if(o.round)fr.classList.add('rd');
+  const cz=v=>Math.min(5,Math.max(1,v));
+  const apply=()=>{const sw=st.clientWidth,sh=st.clientHeight,cx=sw/2,cy=sh/2;
+   fw=Math.min(sw-32,(sh-24)*asp,560);fh=fw/asp;
+   fr.style.left=(cx-fw/2)+'px';fr.style.top=(cy-fh/2)+'px';fr.style.width=fw+'px';fr.style.height=fh+'px';
+   minS=Math.max(fw/iw,fh/ih);z=cz(z);const s=minS*z,mx=Math.max(0,(iw*s-fw)/2),my=Math.max(0,(ih*s-fh)/2);
+   x=Math.min(mx,Math.max(-mx,x));y=Math.min(my,Math.max(-my,y));
+   img.style.transform='translate('+(cx+x-iw/2)+'px,'+(cy+y-ih/2)+'px) scale('+s+')';rg.value=(z-1)*25};
+  if(o.chips){const ch=q('.ycr-ch');o.chips.forEach((c,i)=>{const b=document.createElement('button');b.type='button';b.textContent=c.l;if(i===0)b.className='on';b.onclick=()=>{asp=c.a;ch.querySelectorAll('button').forEach(k=>k.classList.toggle('on',k===b));apply()};ch.appendChild(b)})}
+  const P=new Map();let d0=1,z0=1;
+  st.onpointerdown=e=>{try{st.setPointerCapture(e.pointerId)}catch(_){}P.set(e.pointerId,{x:e.clientX,y:e.clientY});if(P.size===2){const[a,b]=[...P.values()];d0=Math.hypot(a.x-b.x,a.y-b.y)||1;z0=z}};
+  st.onpointermove=e=>{const p=P.get(e.pointerId);if(!p)return;if(P.size===1){x+=e.clientX-p.x;y+=e.clientY-p.y}p.x=e.clientX;p.y=e.clientY;if(P.size===2){const[a,b]=[...P.values()];z=cz(z0*Math.hypot(a.x-b.x,a.y-b.y)/d0)}apply()};
+  st.onpointerup=st.onpointercancel=e=>{P.delete(e.pointerId)};
+  st.onwheel=e=>{e.preventDefault();z=cz(z*(e.deltaY<0?1.08:1/1.08));apply()};
+  rg.oninput=()=>{z=cz(1+rg.value/25);apply()};
+  const close=()=>{document.removeEventListener('keydown',kd);window.removeEventListener('resize',apply);ov.remove();URL.revokeObjectURL(url)};
+  const kd=e=>{if(e.key==='Escape')close()};document.addEventListener('keydown',kd);window.addEventListener('resize',apply);
+  q('.ycr-c').onclick=close;
+  q('.ycr-ok').onclick=()=>{const s=minS*z,sw=fw/s,sh=fh/s,sx=iw/2-x/s-sw/2,sy=ih/2-y/s-sh/2;
+   let W,H;if(o.out){W=H=o.out}else if(asp>=1){W=o.long;H=Math.round(o.long/asp)}else{H=o.long;W=Math.round(o.long*asp)}
+   const c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,H);g.imageSmoothingQuality='high';g.drawImage(im,sx,sy,sw,sh,0,0,W,H);
+   const d=c.toDataURL('image/jpeg',o.q||.82);close();done(d)};
+  document.body.appendChild(ov);apply();
+ };
+ im.src=url;
+}
+function pickCover(){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files[0];if(!f)return;const c=$('#ySyncCard'),r=c?c.getBoundingClientRect():{width:3,height:4},ca=Math.min(2,Math.max(.5,r.width/(r.height||1)));yCrop(f,{title:'Cắt ảnh nền',aspect:ca,long:1200,q:.8,chips:[{l:'Vừa khung',a:ca},{l:'16:9',a:16/9},{l:'4:3',a:4/3},{l:'1:1',a:1},{l:'3:4',a:3/4}]},d=>{setCv(d);toast('Đã đổi ảnh nền')})};i.click()}
 const setName=v=>{v=String(v||'').trim().slice(0,30);ls(nmk(),v);ls(nmk()+'.ts',String(Date.now()));Q.add('__name');saveMeta();editName=false;ui();if(user&&on())queue('__name')};
 const setAv=d=>{ls(avk(),d);ls(avk()+'.ts',String(Date.now()));Q.add('__avatar');saveMeta();ui();if(user&&on())queue('__avatar')};
-function pickAvatar(){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files[0];if(!f)return;const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d'),m=Math.min(im.width,im.height);g.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,256,256);URL.revokeObjectURL(im.src);setAv(c.toDataURL('image/jpeg',.82))};im.onerror=()=>toast('Không đọc được ảnh này');im.src=URL.createObjectURL(f)};i.click()}
+function pickAvatar(){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files[0];if(!f)return;yCrop(f,{title:'Cắt ảnh đại diện',aspect:1,round:true,out:320,q:.85},d=>{setAv(d);toast('Đã đổi ảnh đại diện')})};i.click()}
 function ui(){
  const card=$('#ySyncCard');if(!card)return;
  if(!user){pOpen=false;editName=false}
@@ -9784,6 +9824,7 @@ html:not([data-view=pc]) #ed.off>#tools{transition:none!important}/* hết anima
    dur=closing?440:520;
   }
   cancelAll(t);
+  if(!closing&&qb&&qb.getAnimations)qb.getAnimations({subtree:true}).forEach(x=>{if(x.id==='yqb')x.cancel()});
   if(closing){
    /* thu về: đi ngược chuỗi keyframe, cuối chặng mờ dần để nhường chỗ cho dock/thanh ở màn hình chính */
    kf=kf.slice().reverse().map((f,i,arr)=>{const o={...f};o.offset=i===0?0:i===arr.length-1?1:1-f.offset;return o});
@@ -9795,6 +9836,13 @@ html:not([data-view=pc]) #ed.off>#tools{transition:none!important}/* hết anima
    [...t.children].forEach((b,i,all)=>b.animate([{opacity:1,transform:'none'},{opacity:0,transform:pc?'translateX(-30px) scale(.7)':'scale(.55)'}],
      {duration:150,delay:(all.length-1-i)*14,easing:EASE,fill:'both'}));
    if(pc&&qb&&qb.animate)qb.animate([{opacity:1,transform:'none'},{opacity:0,transform:'scale(.96)',offset:.3},{opacity:0,transform:'scale(.96)',offset:.55},{opacity:1,transform:'none'}],{duration:dur,easing:'linear'});
+   /* PE (điện thoại): dock màn hình chính trước đây hiện đầy đủ ngay từ đầu → đè lên thanh công cụ đang thu nhỏ.
+      Giờ dock chính ẩn cho tới khi thanh công cụ thu gần tới đúng vị trí của nó, rồi hiện dần (cùng đường cong easing + cùng nhịp với lúc thanh công cụ mờ đi → chuyển cảnh liền mạch), các nút bật lên lần lượt như lúc vào ghi chú. */
+   else if(!pc&&qb&&qb.animate){
+    qb.getAnimations().forEach(x=>{if(x.id==='yqb')x.cancel()});
+    const A=qb.animate([{opacity:0},{opacity:0,offset:.62},{opacity:1}],{duration:dur,easing:'cubic-bezier(.4,0,.2,1)',fill:'backwards'});A.id='yqb';
+    [...qb.children].forEach((b,i)=>{const B=b.animate([{opacity:0,transform:'scale(.6)'},{opacity:1,transform:'none'}],{duration:300,delay:dur*.6+i*32,easing:BACK,fill:'backwards'});B.id='yqb'});
+   }
   }else{
    t.animate(kf,{duration:dur,easing:pc?'cubic-bezier(.55,.05,.2,1)':EASE});
    [...t.children].forEach((b,i)=>{
