@@ -2361,7 +2361,7 @@ html body #folderbar[hidden]{display:none!important}
 <section id="settings">
  <div class="settings-top"><div class="top"><button class="ib" id="settingsBack" data-i="back" aria-label="Quay lại"></button><h2 style="margin:0;font-size:24px;flex:1">Cài đặt</h2></div></div>
  <div class="settings-list">
-  <div class="setting-card brand-card"><b>Yume<i>.</i> Writing</b><small>Design by Yume<i>.</i> System - Đỗ Đạt</small><small>Truly Creative · Truly Smart</small><small>Version 19.3</small><div class="settings-actions brand-actions" style="display:grid;gap:10px;grid-template-columns:1fr;margin-top:10px"><button class="pill" id="changelogBtn" type="button" style="width:100%">Thông tin bản cập nhật</button><button class="pill red" id="installApp" type="button" style="width:100%">Cài thành app cho điện thoại</button><button class="pill" id="checkUpdate" type="button" hidden style="display:none">Cập nhật bản mới nhất</button></div></div>
+  <div class="setting-card brand-card"><b>Yume<i>.</i> Writing</b><small>Design by Yume<i>.</i> System - Đỗ Đạt</small><small>Truly Creative · Truly Smart</small><small>Version 19.4</small><div class="settings-actions brand-actions" style="display:grid;gap:10px;grid-template-columns:1fr;margin-top:10px"><button class="pill" id="changelogBtn" type="button" style="width:100%">Thông tin bản cập nhật</button><button class="pill red" id="installApp" type="button" style="width:100%">Cài thành app cho điện thoại</button><button class="pill" id="checkUpdate" type="button" hidden style="display:none">Cập nhật bản mới nhất</button></div></div>
   <div class="setting-card">
    <div><div class="setting-title">Giao diện</div><div class="setting-sub">Chuyển giữa chế độ sáng và tối.</div></div>
    <div class="setting-row"><div><b id="themeLabel">Chế độ sáng</b><div class="setting-sub">Yume Writing sẽ ghi nhớ lựa chọn này.</div></div><button class="switch" id="themeSwitch" aria-label="Đổi chế độ sáng tối"></button></div>
@@ -8162,6 +8162,7 @@ html body #ed>.top #canvasMode.on svg{filter:drop-shadow(0 0 5px rgba(229,50,45,
 <style id="yPillDock">
 /* ===== v15.6: thanh công cụ dạng viên thuốc, kính mờ (liquid glass) ===== */
 html body #ed{--pd-h:56px;--pd-gap:10px}
+html[data-view=pc] body #ed{--pd-gap:20px}/* PC: tâm thanh công cụ trong ghi chú ngang với viên thuốc ở sidebar (qbar: cao 60, cách đáy 18) */
 html body #ed #tools,html body #ed #fmt{
   position:absolute!important;left:18px;right:18px;z-index:7;box-sizing:border-box;height:var(--pd-h);
   border:1px solid rgba(120,124,136,.34)!important;border-radius:999px;
@@ -9525,11 +9526,34 @@ btn.addEventListener('click',open);
 })();
 </script>
 <style id="yQbarFix">
-/* thanh công cụ đáy: đục hơn, mờ nền rõ hơn, 3 nút đồng đều */
-html body #qbar{background:rgba(255,255,255,.88)!important;-webkit-backdrop-filter:blur(24px) saturate(1.6)!important;backdrop-filter:blur(24px) saturate(1.6)!important;gap:6px!important;padding:6px 8px!important;border:1px solid rgba(255,255,255,.9)!important;box-shadow:0 10px 30px rgba(20,20,40,.16),0 1px 3px rgba(20,20,40,.08)!important}
-html[data-theme=dark] body #qbar{background:rgba(36,36,44,.9)!important;border:1px solid rgba(255,255,255,.12)!important;box-shadow:0 12px 34px rgba(0,0,0,.55)!important}
-html body #qbar .qbtn,html body #qbar #new{width:50px!important;height:46px!important;border-radius:999px!important;background:rgba(120,120,130,.12)!important;box-shadow:none!important;border:0!important}
-html body #qbar .qbtn:active,html body #qbar #new:active{background:rgba(120,120,130,.26)!important}
+/* ===== Dock đáy: kính mờ ăn màu nền (giống menu Đồng hồ / Ghim / Ẩn / Xóa) ===== */
+html body #qbar{
+  isolation:isolate;gap:6px!important;padding:6px 8px!important;
+  background:linear-gradient(135deg,rgba(255,255,255,.34) 0%,rgba(255,255,255,.12) 55%,rgba(70,90,120,.22) 100%)!important;
+  -webkit-backdrop-filter:blur(30px) saturate(190%)!important;
+  backdrop-filter:blur(30px) saturate(190%)!important;
+  border:1px solid rgba(255,255,255,.5)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 10px 30px rgba(20,30,60,.2)!important}
+html body #qbar::before{content:none!important}
+html body #qbar .qbtn,html body #qbar #new{
+  width:50px!important;height:46px!important;border-radius:999px!important;border:0!important;
+  background:rgba(255,255,255,.14)!important;box-shadow:none!important;
+  transition:background .2s,transform .2s cubic-bezier(.22,1,.36,1)}
+html body #qbar .qbtn:active,html body #qbar #new:active{background:rgba(255,255,255,.34)!important;transform:scale(.94)}
+
+/* Dark: tối dần về góc dưới-phải, màu nền xuyên qua như ảnh mẫu */
+html[data-theme=dark] body #qbar{
+  background:linear-gradient(135deg,rgba(255,255,255,.12) 0%,rgba(20,30,40,.30) 55%,rgba(0,0,0,.42) 100%)!important;
+  -webkit-backdrop-filter:blur(32px) saturate(200%) brightness(.95)!important;
+  backdrop-filter:blur(32px) saturate(200%) brightness(.95)!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 14px 36px rgba(0,0,0,.5)!important}
+html[data-theme=dark] body #qbar .qbtn,html[data-theme=dark] body #qbar #new{background:rgba(255,255,255,.07)!important}
+html[data-theme=dark] body #qbar .qbtn:active,html[data-theme=dark] body #qbar #new:active{background:rgba(255,255,255,.18)!important}
+
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  html body #qbar{background:rgba(250,250,252,.95)!important}
+  html[data-theme=dark] body #qbar{background:rgba(40,40,46,.96)!important}}
 html body #cards{padding-bottom:110px}
 </style>
 <script id="ySyncJS">
@@ -9805,10 +9829,13 @@ html.ymorph-out:not([data-view=pc]) #ed.off{transform:none!important;visibility:
 html.ymorph-out:not([data-view=pc]) #ed.off>*:not(#tools){opacity:0!important;transition:opacity .14s linear!important}
 html.ymorph-out:not([data-view=pc]) #ed.off>#tools{opacity:1!important}
 html:not([data-view=pc]) #ed.off>#tools{transition:none!important}/* hết animation thì ẩn ngay, không mờ lại */
+/* PC: thanh công cụ bay giữa viên thuốc sidebar <-> trong ghi chú đi ra ngoài biên #ed (bên trái) → trước đây bị overflow-x:clip của #ed cắt và nằm dưới lớp sidebar. Khi chạy (cả vào lẫn ra) cho #ed không cắt và nổi lên trên sidebar. */
+html.ymorph[data-view=pc] #ed,html.ymorph-out[data-view=pc] #ed{overflow:visible!important;overflow-x:visible!important;z-index:0!important}
+html.ymorph[data-view=pc] #list,html.ymorph-out[data-view=pc] #list{z-index:2}
 </style>
 <script id="yTbMorphJS">
 (()=>{
- const ED_=document.getElementById('ed'),HTML=document.documentElement;
+ const ED_=document.getElementById('ed'),HTML=document.documentElement,APP_=document.getElementById('app');
  const noMotion=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
  const isPCm=()=>HTML.getAttribute('data-view')==='pc'&&matchMedia('(min-width:640px)').matches;
  const EASE='cubic-bezier(.22,1,.36,1)',BACK='cubic-bezier(.34,1.35,.5,1)';
@@ -9845,45 +9872,66 @@ html:not([data-view=pc]) #ed.off>#tools{transition:none!important}/* hết anima
    kf=[{width:qr.width+'px',height:qr.height+'px',marginLeft:ql+'px',bottom:qbm+'px'},
        {width:(tw*.9)+'px',height:(th+2)+'px',marginLeft:(tl+(tw*.1))+'px',bottom:tb+'px',offset:.62},
        {width:tw+'px',height:th+'px',marginLeft:tl+'px',bottom:tb+'px'}];
-   dur=closing?520:760;
+   dur=closing?780:1080;
   }else{
    kf=[{left:ql+'px',right:(W-ql-qr.width)+'px',height:qr.height+'px',bottom:qbm+'px'},
        {left:(tl-6)+'px',right:(W-tl-tw-6)+'px',height:(th-5)+'px',bottom:tb+'px',offset:.6},
        {left:tl+'px',right:(W-tl-tw)+'px',height:th+'px',bottom:tb+'px'}];
-   dur=closing?360:520;
+   dur=closing?540:720;
   }
+  /* PC: trang ghi chú nằm dưới sidebar, còn thanh công cụ phải nổi trên sidebar → dùng bản sao (đã chép style) đặt thẳng trong #app, ở lớp trên cùng */
+  document.querySelectorAll('.ytb-clone').forEach(x=>x.remove());
+  let clone=null;
+  const edL=ED_.offsetLeft;
+  if(pc){try{
+   const cp=(a,b)=>{const cs=getComputedStyle(a);let st='';for(let k=0;k<cs.length;k++){const n=cs[k];st+=n+':'+cs.getPropertyValue(n)+';'}b.style.cssText=st;b.removeAttribute('id');
+    for(let k=0;k<a.children.length;k++)cp(a.children[k],b.children[k])};
+   clone=t.cloneNode(true);cp(t,clone);clone.classList.add('ytb-clone');
+   Object.assign(clone.style,{position:'absolute',left:'0px',right:'auto',top:'auto',margin:'0px',marginLeft:(tl+edL)+'px',bottom:tb+'px',width:tw+'px',height:th+'px',transform:'none',zIndex:'5',pointerEvents:'none',overflow:'hidden',transition:'none',visibility:'visible',display:'flex'});
+   APP_.append(clone);t.style.visibility='hidden';
+  }catch(e){if(clone)clone.remove();clone=null;t.style.visibility=''}}
+  const adj=fr=>fr.map(f=>{const g={...f};if(g.marginLeft!=null)g.marginLeft=(parseFloat(g.marginLeft)+edL)+'px';return g});
+  const TA=(fr,o)=>{const a=t.animate(fr,o);if(clone)clone.animate(adj(fr),o);return a};
+  const BA=(b,i,fr,o)=>{const a=b.animate(fr,o);if(clone&&clone.children[i])clone.children[i].animate(fr,o);return a};
   cancelAll(t);
   if(!closing&&qb&&qb.getAnimations)qb.getAnimations({subtree:true}).forEach(x=>{if(x.id==='yqb')x.cancel()});
   if(closing){
    /* thu về: đi ngược chuỗi keyframe, cuối chặng mờ dần để nhường chỗ cho dock/thanh ở màn hình chính */
    kf=kf.slice().reverse().map((f,i,arr)=>{const o={...f};o.offset=i===0?0:i===arr.length-1?1:1-f.offset;return o});
    if(pc)kf=[kf[0],kf[kf.length-1]];/* PC: co thẳng một nhịp, không có điểm dừng giữa chừng */
-   kf[kf.length-1].filter='opacity(0)';kf.splice(kf.length-1,0,{...kf[kf.length-1],filter:'opacity(1)',offset:.72});
+   kf[kf.length-1].filter='opacity(0)';kf.splice(kf.length-1,0,{...kf[kf.length-1],filter:'opacity(1)',offset:.82});
    kf.forEach(f=>{if(f.filter==null)f.filter='opacity(1)'});
    kf.sort((a,b)=>a.offset-b.offset);
-   t.animate(kf,{duration:dur,easing:pc?'cubic-bezier(.5,0,.15,1)':EASE,fill:'forwards'});/* giữ trạng thái cuối, tránh thanh trắng bật lại */
-   [...t.children].forEach((b,i,all)=>b.animate([{opacity:1,transform:'none'},{opacity:0,transform:pc?'translateX(-30px) scale(.7)':'scale(.55)'}],
-     {duration:150,delay:(all.length-1-i)*14,easing:EASE,fill:'both'}));
-   if(pc&&qb&&qb.animate)qb.animate([{opacity:1,transform:'none'},{opacity:0,transform:'scale(.96)',offset:.3},{opacity:0,transform:'scale(.96)',offset:.55},{opacity:1,transform:'none'}],{duration:dur,easing:'linear'});
+   TA(kf,{duration:dur,easing:pc?'cubic-bezier(.5,0,.15,1)':EASE,fill:'forwards'});/* giữ trạng thái cuối, tránh thanh trắng bật lại */
+   [...t.children].forEach((b,i,all)=>BA(b,i,[{opacity:1,transform:'none'},{opacity:0,transform:pc?'translateX(-30px) scale(.7)':'scale(.55)'}],
+     {duration:200,delay:(all.length-1-i)*32,easing:EASE,fill:'both'}));
+   if(pc&&qb&&qb.animate)qb.animate([{opacity:1,transform:'none'},{opacity:0,transform:'scale(.96)',offset:.4},{opacity:0,transform:'scale(.96)',offset:.62},{opacity:1,transform:'none'}],{duration:dur,easing:'linear'});
    /* PE (điện thoại): dock màn hình chính trước đây hiện đầy đủ ngay từ đầu → đè lên thanh công cụ đang thu nhỏ.
       Giờ dock chính ẩn cho tới khi thanh công cụ thu gần tới đúng vị trí của nó, rồi hiện dần (cùng đường cong easing + cùng nhịp với lúc thanh công cụ mờ đi → chuyển cảnh liền mạch), các nút bật lên lần lượt như lúc vào ghi chú. */
    else if(!pc&&qb&&qb.animate){
     qb.getAnimations().forEach(x=>{if(x.id==='yqb')x.cancel()});
     const A=qb.animate([{opacity:0},{opacity:0,offset:.62},{opacity:1}],{duration:dur,easing:EASE,fill:'backwards'});A.id='yqb';
-    [...qb.children].forEach((b,i)=>{const B=b.animate([{opacity:0,transform:'scale(.6)'},{opacity:1,transform:'none'}],{duration:260,delay:dur*.22+i*30,easing:BACK,fill:'backwards'});B.id='yqb'});
+    [...qb.children].forEach((b,i)=>{const B=b.animate([{opacity:0,transform:'scale(.6)'},{opacity:1,transform:'none'}],{duration:380,delay:dur*.22+i*45,easing:BACK,fill:'backwards'});B.id='yqb'});
    }
   }else{
-   t.animate(kf,{duration:dur,easing:pc?'cubic-bezier(.55,.05,.2,1)':EASE});
+   kf.forEach((f,i)=>{f.filter=i===0?'opacity(0)':'opacity(1)'});/* thanh rõ dần khi xuất hiện */
+   TA(kf,{duration:dur,easing:pc?'cubic-bezier(.55,.05,.2,1)':EASE});
+   /* PC: #ed đang phóng to từ thẻ (transform scale) nên vị trí tính theo toạ độ #ed bị co theo → viên thuốc xuất hiện sai chỗ (quá cao). Mỗi khung hình áp phép biến đổi ngược của #ed lên thanh công cụ để nó luôn ở đúng toạ độ màn hình. */
+   if(pc&&window.DOMMatrix){const t0=performance.now(),fix=()=>{if(me!==tok||performance.now()-t0>dur+130){t.style.transform='';t.style.transformOrigin='';return}
+     const tr=getComputedStyle(ED_).transform;
+     if(tr&&tr!=='none'){try{const M=new DOMMatrix(tr).inverse(),L=t.offsetLeft,T=t.offsetTop,p=M.transformPoint(new DOMPoint(L,T));t.style.transformOrigin='0 0';t.style.transform='matrix('+M.a+','+M.b+','+M.c+','+M.d+','+(p.x-L)+','+(p.y-T)+')'}catch(_){}}
+     else{t.style.transform='';t.style.transformOrigin=''}
+     requestAnimationFrame(fix)};requestAnimationFrame(fix)}
    [...t.children].forEach((b,i)=>{
-    b.animate(pc?[{opacity:0,transform:'translateX(-46px) scale(.7)'},{opacity:1,transform:'none'}]
+    BA(b,i,pc?[{opacity:0,transform:'translateX(-46px) scale(.7)'},{opacity:1,transform:'none'}]
                 :[{opacity:0,transform:'scale(.55)'},{opacity:1,transform:'none'}],
-     {duration:pc?380:340,delay:(pc?30:110)+i*(pc?38:35),easing:pc?EASE:BACK,fill:'backwards'});
+     {duration:pc?560:460,delay:(pc?200:150)+i*(pc?60:45),easing:pc?EASE:BACK,fill:'backwards'});
    });
    if(pc&&qb&&qb.animate){
-    qb.animate([{opacity:1,transform:'none'},{opacity:0,transform:'scale(.96)',offset:.2},{opacity:0,transform:'scale(.96)',offset:.55},{opacity:1,transform:'none'}],{duration:dur+80,easing:'linear'});
+    qb.animate([{opacity:1,transform:'none'},{opacity:0,transform:'scale(.96)',offset:.41},{opacity:0,transform:'scale(.96)',offset:.62},{opacity:1,transform:'none'}],{duration:dur+80,easing:'linear'});
    }
   }
-  setTimeout(()=>{if(me===tok){cancelAll(t);HTML.classList.remove(cls)}},dur+(closing?40:120));
+  setTimeout(()=>{if(me===tok){cancelAll(t);t.style.transform='';t.style.transformOrigin='';t.style.visibility='';if(clone)clone.remove();HTML.classList.remove(cls)}},dur+(closing?40:120));
  }
 })();
 </script>
@@ -9896,10 +9944,10 @@ html:not([data-view=pc]) #ed.off>#tools{transition:none!important}/* hết anima
 <script id="yChangelogJs">
 (()=>{
  const btn=document.getElementById('changelogBtn');if(!btn)return;
- const ITEMS=['3 phông chữ mới','Chế độ chuyển phông chữ mặc định trong Cài đặt','Thêm animation cho thanh dock','Sửa lỗi vị trí Live Notch ở Canvas mode','Nút tắt Blur phần Yume. AI Chat','Hiệu ứng blur trong giao diện cài đặt','Hiệu ứng chuyển tab chế độ PC','Hiệu ứng ánh sáng ở màn hình chính'];
+ const ITEMS=['3 phông chữ mới','Chế độ chuyển phông chữ mặc định trong Cài đặt','Thêm animation cho thanh dock','Sửa lỗi vị trí Live Notch ở Canvas mode','Nút tắt Blur phần Yume. AI Chat','Hiệu ứng blur trong giao diện cài đặt','Hiệu ứng chuyển tab chế độ PC','Hiệu ứng ánh sáng ở màn hình chính','Giao diện bar mới'];
  btn.onclick=()=>{
   const o=document.createElement('div');o.className='yupd-ov';
-  o.innerHTML='<div class="yupd-card" role="dialog" aria-modal="true" aria-label="Thông tin bản cập nhật"><h3>Thông tin bản cập nhật</h3><span class="ychg-ver">Phiên bản 19.3</span><ul class="ychg-list"></ul><div class="yupd-b"><button type="button" class="pill red">Đã hiểu</button></div></div>';
+  o.innerHTML='<div class="yupd-card" role="dialog" aria-modal="true" aria-label="Thông tin bản cập nhật"><h3>Thông tin bản cập nhật</h3><span class="ychg-ver">Phiên bản 19.4</span><ul class="ychg-list"></ul><div class="yupd-b"><button type="button" class="pill red">Đã hiểu</button></div></div>';
   const ul=o.querySelector('ul');ITEMS.forEach(t=>{const li=document.createElement('li');li.textContent=t;ul.append(li)});
   const esc=e=>{if(e.key==='Escape'){e.stopPropagation();close()}};
   const close=()=>{document.removeEventListener('keydown',esc,true);o.classList.add('out');setTimeout(()=>o.remove(),200)};
@@ -9916,7 +9964,7 @@ html:not([data-view=pc]) #ed.off>#tools{transition:none!important}/* hết anima
  html[data-view=pc] #ed.ystg-fly{transform-origin:0 0;background:var(--bg);overflow:hidden;will-change:transform,clip-path}
  html[data-view=pc].ystg-run #ed.off #edEmpty{opacity:0}
  html[data-view=pc] #ed.off #edEmpty{transition:opacity .35s ease .05s}
- html[data-view=pc] .ystg-g{position:absolute;margin:0;transform-origin:0 0;background:var(--bg);overflow:hidden;pointer-events:none;box-sizing:border-box;will-change:transform,clip-path,opacity}
+ html[data-view=pc] .ystg-g{z-index:3;position:absolute;margin:0;transform-origin:0 0;background:var(--bg);overflow:hidden;pointer-events:none;box-sizing:border-box;will-change:transform,clip-path,opacity}
  html[data-view=pc] .ystg-g .gt{font-size:24px;font-weight:700;line-height:1.25;margin:0 0 14px;overflow-wrap:anywhere;color:var(--ink)}
  html[data-view=pc] .ystg-g .gb{font-size:18px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink);opacity:.85;-webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent);max-height:100%}
  html[data-view=pc] .ystg-cg{position:fixed!important;margin:0!important;pointer-events:none;z-index:60;box-sizing:border-box}
@@ -9995,9 +10043,9 @@ html.y-lite:not([data-view=pc]) #app::before,html.y-lite:not([data-view=pc]) #li
   const s=Math.min(1,cr.width/er.width),dx=cr.left-er.left,dy=cr.top-er.top,lc=lineColor();
   ED_.classList.add('ystg-fly');
   const a=ED_.animate([
-   {transform:`translate(${dx}px,${dy}px) scale(${s})`,clipPath:clipFor(er,cr,s),opacity:0,boxShadow:`inset 0 0 0 ${2/s}px ${lc}`},
+   {transform:`translate(${dx}px,${dy}px) scale(${s})`,clipPath:`inset(0px 0px -900px -700px round ${16/s}px)`,opacity:0,boxShadow:`inset 0 0 0 ${2/s}px ${lc}`},
    {opacity:1,offset:.2},
-   {transform:'translate(0px,0px) scale(1)',clipPath:CLIP0,opacity:1,boxShadow:`inset 0 0 0 0px ${lc}`}
+   {transform:'translate(0px,0px) scale(1)',clipPath:'inset(0px 0px -900px -700px round 0px)',opacity:1,boxShadow:`inset 0 0 0 0px ${lc}`}
   ],{duration:DUR,easing:EASE});
   const done=()=>ED_.classList.remove('ystg-fly');a.onfinish=done;a.oncancel=done;
  }
@@ -10035,6 +10083,17 @@ html.y-lite:not([data-view=pc]) #app::before,html.y-lite:not([data-view=pc]) #li
   const gh=wasOpen?makeGhost():null;
   let eg=null;
   if(!wasOpen&&!still()){const src=ED_.querySelector('#edEmpty');if(src){const er=ED_.getBoundingClientRect(),ar=appRect();eg=document.createElement('div');eg.className='ystg-eg';eg.style.cssText=`left:${er.left-ar.left}px;top:${er.top-ar.top}px;width:${er.width}px;height:${er.height}px`;eg.innerHTML=src.innerHTML;}}
+  /* bản chụp vầng sáng trang chờ: đứng yên tại chỗ và mờ dần (không bay theo #ed) */
+  let gl=null;
+  if(!wasOpen&&!still()){try{
+   const er=ED_.getBoundingClientRect(),ar=appRect();
+   gl=document.createElement('div');
+   gl.style.cssText=`position:absolute;pointer-events:none;z-index:1;overflow:hidden;left:${er.left-ar.left}px;top:${er.top-ar.top}px;width:${er.width}px;height:${er.height}px`;
+   ['::before','::after'].forEach(p=>{const q=getComputedStyle(ED_,p);if(!q.backgroundImage||q.backgroundImage==='none')return;
+    const d=document.createElement('div');
+    d.style.cssText=`position:absolute;left:0;right:0;pointer-events:none;bottom:${q.bottom};height:${q.height};background-image:${q.backgroundImage};background-repeat:no-repeat;background-size:100% 100%;-webkit-mask-image:${q.webkitMaskImage};mask-image:${q.maskImage};filter:${q.filter};transform:${q.transform==='none'?'none':q.transform};transform-origin:50% 100%;opacity:${q.opacity}`;
+    gl.append(d)});
+  }catch(e){gl=null}}
   const cg=still()?null:c.cloneNode(true);
   if(cg){cg.classList.add('ystg-cg');cg.removeAttribute('data-nid');cg.style.cssText=`left:${cr.left}px;top:${cr.top}px;width:${cr.width}px;height:${cr.height}px`}
   requestAnimationFrame(()=>{
@@ -10047,6 +10106,7 @@ html.y-lite:not([data-view=pc]) #app::before,html.y-lite:not([data-view=pc]) #li
    HTML.classList.add('ystg-run');
    if(pc&&gh&&!gh.blank){shrinkGhost(gh,pc.getBoundingClientRect(),DUR);fadeIn(pc,DUR)}
    flip(tops);
+   if(gl){ED_.after(gl);junk.push(gl);gl.animate([{opacity:1},{opacity:0}],{duration:420,easing:'ease-out',fill:'forwards'})}
    if(eg){ED_.after(eg);junk.push(eg);eg.animate([{opacity:1},{opacity:0}],{duration:240,easing:'ease-out',fill:'forwards'})}
    if(cg){document.body.append(cg);junk.push(cg);cg.animate([{opacity:1},{opacity:0,transform:'scale(.97)'}],{duration:260,easing:'ease-out',fill:'forwards'})}
    expandEd(cr);endRun();
@@ -10110,6 +10170,26 @@ html.y-lite:not([data-view=pc]) #app::before,html.y-lite:not([data-view=pc]) #li
   background-image:radial-gradient(ellipse 74% 30% at 50% 72%,rgba(255,150,120,.5),transparent 100%),radial-gradient(ellipse 28% 32% at 32% 66%,rgba(255,170,110,.6),transparent 100%),radial-gradient(ellipse 28% 34% at 68% 66%,rgba(255,107,129,.58),transparent 100%);
   animation:ywGlowB 11s ease-in-out infinite alternate}
 }
+/* FIX: vầng sáng ở trang chờ KHÔNG được bay theo #ed khi mở ghi chú (hiệu ứng Stage Manager) -> tắt tức thì khi #ed đang bay */
+@media(min-width:640px){
+ html[data-view=pc] #ed.ystg-fly::before,html[data-view=pc] #ed.ystg-fly::after,
+ html[data-view=pc].ystg-run #ed:not(.off)::before,html[data-view=pc].ystg-run #ed:not(.off)::after{opacity:0!important;visibility:hidden!important;transition:none!important;animation:none!important}
+}
+/* Sidebar PC: nền kính mờ (blur glass), bo tròn 2 góc mép ngoài, ánh sáng ấm trôi chậm phía sau (bị cắt gọn trong khung, không tràn sang phần ghi chú) */
+@keyframes ywSbA{0%{background-position:0% 0%,100% 100%,50% 50%}100%{background-position:30% 14%,70% 84%,50% 62%}}
+@media(min-width:640px){
+ html[data-view=pc] #app::before{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--yw-sidebar,360px);z-index:0;pointer-events:none;display:block!important;opacity:1;
+  clip-path:inset(0 round 0 28px 28px 0);
+  background-image:radial-gradient(ellipse 90% 40% at 0% 0%,rgba(255,112,132,.30),transparent 100%),radial-gradient(ellipse 100% 46% at 100% 100%,rgba(255,150,92,.34),transparent 100%),radial-gradient(ellipse 70% 30% at 50% 50%,rgba(229,50,45,.16),transparent 100%);
+  background-size:140% 140%;background-repeat:no-repeat;
+  animation:ywSbA 12s ease-in-out infinite alternate}
+ html[data-view=pc] #list{z-index:2;border-radius:0 28px 28px 0;border-right:1px solid rgba(255,255,255,.10);
+  background:linear-gradient(160deg,color-mix(in srgb,var(--bg) 66%,transparent),color-mix(in srgb,var(--bg) 52%,transparent))!important;
+  -webkit-backdrop-filter:blur(30px) saturate(1.6);backdrop-filter:blur(30px) saturate(1.6);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),8px 0 30px rgba(0,0,0,.12)}
+}
+html.y-lite[data-view=pc] #app::before{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){html[data-view=pc] #app::before{animation:none!important}}
 /* ===== PE: ánh sáng nền tinh tế - một vầng sáng ấm rất nhẹ ở đáy, đối xứng, "thở" chậm, thêm lớp hạt mịn chống bệt màu ===== */
 @keyframes ywBreath{from{opacity:.6;transform:scale(1,.92)}to{opacity:1;transform:scale(1.05,1.08)}}
 html:not([data-view=pc]) #app::before{display:none!important}
