@@ -2361,7 +2361,7 @@ html body #folderbar[hidden]{display:none!important}
 <section id="settings">
  <div class="settings-top"><div class="top"><button class="ib" id="settingsBack" data-i="back" aria-label="Quay lại"></button><h2 style="margin:0;font-size:24px;flex:1">Cài đặt</h2></div></div>
  <div class="settings-list">
-  <div class="setting-card brand-card"><b>Yume<i>.</i> Writing</b><small>Design by Yume<i>.</i> System - Đỗ Đạt</small><small>Truly Creative · Truly Smart</small><small>Version 19.4</small><div class="settings-actions brand-actions" style="display:grid;gap:10px;grid-template-columns:1fr;margin-top:10px"><button class="pill" id="changelogBtn" type="button" style="width:100%">Thông tin bản cập nhật</button><button class="pill red" id="installApp" type="button" style="width:100%">Cài thành app cho điện thoại</button><button class="pill" id="checkUpdate" type="button" hidden style="display:none">Cập nhật bản mới nhất</button></div></div>
+  <div class="setting-card brand-card"><b>Yume<i>.</i> Writing</b><small>Design by Yume<i>.</i> System - Đỗ Đạt</small><small>Truly Creative · Truly Smart</small><small>Version 19.5</small><div class="settings-actions brand-actions" style="display:grid;gap:10px;grid-template-columns:1fr;margin-top:10px"><button class="pill" id="changelogBtn" type="button" style="width:100%">Thông tin bản cập nhật</button><button class="pill red" id="installApp" type="button" style="width:100%">Cài thành app cho điện thoại</button><button class="pill" id="checkUpdate" type="button" hidden style="display:none">Cập nhật bản mới nhất</button></div></div>
   <div class="setting-card">
    <div><div class="setting-title">Giao diện</div><div class="setting-sub">Chuyển giữa chế độ sáng và tối.</div></div>
    <div class="setting-row"><div><b id="themeLabel">Chế độ sáng</b><div class="setting-sub">Yume Writing sẽ ghi nhớ lựa chọn này.</div></div><button class="switch" id="themeSwitch" aria-label="Đổi chế độ sáng tối"></button></div>
@@ -3270,7 +3270,7 @@ function finishCur(){const n=S.cur;if(!n)return;if(rec)rec.stop();closePops();
  if(!n.title.trim()&&!n.content.trim()&&!/<(img|audio|table)|docchip|class="ck"/.test(n.html||'')){S.notes=S.notes.filter(x=>x!==n);DB.del(n.id)}else{clearTimeout(tm);DB.put(n)}}
 function openNote(n){if(window.yExitSelect)window.yExitSelect();if(S.cur&&S.cur!==n)finishCur();S.cur=n;S.er=null;
  
- setTitle(n);ED().innerHTML=n.html||esc(n.content).replace(/\n/g,'<br>');ED().querySelectorAll('.yatt.selected').forEach(x=>x.classList.remove('selected'));normalize();labels();closePops();closeSheet();if(window.yRuleApply)yRuleApply(n.rule);$('#selbtn').hidden=true;fmtOpen(false);show('ed');
+ setTitle(n);ED().innerHTML=n.html||esc(n.content).replace(/\n/g,'<br>');ED().querySelectorAll('.yatt.selected').forEach(x=>x.classList.remove('selected'));normalize();labels();closePops();closeSheet();if(window.yRuleApply)yRuleApply(n.rule);if(window.yBgApply)yBgApply(n.bg,true);$('#selbtn').hidden=true;fmtOpen(false);show('ed');
  /* PC: dựng lại cả danh sách (để đánh dấu thẻ đang mở) ngay trong lúc mở ghi chú chặn luồng chính → dock đứng hình ~0,2s rồi mới chuyển động ("giật 1 phát").
     Dời sang sau khi animation dock chạy xong; mở ghi chú khác trong lúc chờ thì chỉ giữ lần cuối. */
  if(isPC()){clearTimeout(window._yOpenRl);window._yOpenRl=setTimeout(()=>{if(S.cur)renderList()},820)}
@@ -9944,10 +9944,10 @@ html.ymorph[data-view=pc] #list,html.ymorph-out[data-view=pc] #list{z-index:2}
 <script id="yChangelogJs">
 (()=>{
  const btn=document.getElementById('changelogBtn');if(!btn)return;
- const ITEMS=['3 phông chữ mới','Chế độ chuyển phông chữ mặc định trong Cài đặt','Thêm animation cho thanh dock','Sửa lỗi vị trí Live Notch ở Canvas mode','Nút tắt Blur phần Yume. AI Chat','Hiệu ứng blur trong giao diện cài đặt','Hiệu ứng chuyển tab chế độ PC','Hiệu ứng ánh sáng ở màn hình chính','Giao diện bar mới'];
+ const ITEMS=['Thay đổi ảnh nền ghi chú','3 phông chữ mới','Chế độ chuyển phông chữ mặc định trong Cài đặt','Thêm animation cho thanh dock','Sửa lỗi vị trí Live Notch ở Canvas mode','Nút tắt Blur phần Yume. AI Chat','Hiệu ứng blur trong giao diện cài đặt','Hiệu ứng chuyển tab chế độ PC','Hiệu ứng ánh sáng ở màn hình chính','Giao diện bar mới'];
  btn.onclick=()=>{
   const o=document.createElement('div');o.className='yupd-ov';
-  o.innerHTML='<div class="yupd-card" role="dialog" aria-modal="true" aria-label="Thông tin bản cập nhật"><h3>Thông tin bản cập nhật</h3><span class="ychg-ver">Phiên bản 19.4</span><ul class="ychg-list"></ul><div class="yupd-b"><button type="button" class="pill red">Đã hiểu</button></div></div>';
+  o.innerHTML='<div class="yupd-card" role="dialog" aria-modal="true" aria-label="Thông tin bản cập nhật"><h3>Thông tin bản cập nhật</h3><span class="ychg-ver">Phiên bản 19.5</span><ul class="ychg-list"></ul><div class="yupd-b"><button type="button" class="pill red">Đã hiểu</button></div></div>';
   const ul=o.querySelector('ul');ITEMS.forEach(t=>{const li=document.createElement('li');li.textContent=t;ul.append(li)});
   const esc=e=>{if(e.key==='Escape'){e.stopPropagation();close()}};
   const close=()=>{document.removeEventListener('keydown',esc,true);o.classList.add('out');setTimeout(()=>o.remove(),200)};
@@ -10019,10 +10019,13 @@ html.y-lite:not([data-view=pc]) #app::before,html.y-lite:not([data-view=pc]) #li
  function makeGhost(){
   const t=(document.getElementById('title').textContent||'').trim();
   const b=document.getElementById('body');
-  const txt=((b&&(b.innerText||b.textContent))||'').replace(/\u200b/g,'').replace(/\n{3,}/g,'\n\n').trim().slice(0,600);
+  /* chỉ lấy chữ thật của ghi chú: bỏ nhãn tệp đính kèm / nút "✦ Phân tích AI" / ảnh / bảng (trước đây thẻ mini hiện "× ✦ Phân tích AI" rồi mới giật về chữ đúng) */
+  let raw='';if(b){const c=b.cloneNode(true);c.querySelectorAll('.yatt,.docchip,button,img,audio,video,svg,table,.ck,[contenteditable=false]').forEach(x=>x.remove());c.querySelectorAll('br').forEach(x=>x.replaceWith('\n'));c.querySelectorAll('div,p,li,h1,h2,h3').forEach(x=>x.append('\n'));raw=c.textContent||''}
+  const txt=raw.replace(/\u200b/g,'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim().slice(0,600);
   const er=ED_.getBoundingClientRect(),ar=appRect(),cs=getComputedStyle(ED_);
   const g=document.createElement('div');g.className='ystg-g';
   g.style.cssText=`left:${er.left-ar.left}px;top:${er.top-ar.top}px;width:${er.width}px;height:${er.height}px;padding:76px ${cs.paddingRight} 0 ${cs.paddingLeft}`;
+  {const ly=ED_.querySelector('#ybgA.on,#ybgB.on');if(ly&&ly.style.backgroundImage){g.style.backgroundImage=ly.style.backgroundImage;g.style.backgroundSize='100% 100%';g.style.backgroundRepeat='no-repeat';g.dataset.hasbg='1';g.style.setProperty('--ink',cs.color)}}
   const gt=document.createElement('div');gt.className='gt';gt.textContent=t;
   const gb=document.createElement('div');gb.className='gb';gb.textContent=txt;
   g.append(gt,gb);
@@ -10040,7 +10043,7 @@ html.y-lite:not([data-view=pc]) #app::before,html.y-lite:not([data-view=pc]) #li
  /* #ed phóng to từ vị trí thẻ */
  function expandEd(cr){
   const er=ED_.getBoundingClientRect();if(!er.width)return;
-  const s=Math.min(1,cr.width/er.width),dx=cr.left-er.left,dy=cr.top-er.top,lc=lineColor();
+  const s=Math.min(1,cr.width/er.width),dx=cr.left-er.left,dy=cr.top-er.top,lc=ED_.hasAttribute('data-ybg')?'transparent':lineColor();/* nền ghi chú: không viền sáng */
   ED_.classList.add('ystg-fly');
   const a=ED_.animate([
    {transform:`translate(${dx}px,${dy}px) scale(${s})`,clipPath:`inset(0px 0px -900px -700px round ${16/s}px)`,opacity:0,boxShadow:`inset 0 0 0 ${2/s}px ${lc}`},
@@ -10051,7 +10054,7 @@ html.y-lite:not([data-view=pc]) #app::before,html.y-lite:not([data-view=pc]) #li
  }
  /* trang cũ thu nhỏ về thẻ ở sidebar */
  function shrinkGhost(gh,tr,dur){
-  const er=gh.er,s=Math.min(1,tr.width/er.width),dx=tr.left-er.left,dy=tr.top-er.top,lc=lineColor();
+  const er=gh.er,s=Math.min(1,tr.width/er.width),dx=tr.left-er.left,dy=tr.top-er.top,lc=gh.el.dataset.hasbg?'transparent':lineColor();/* nền ghi chú: không viền sáng */
   const g=gh.el;g.style.boxShadow=`inset 0 0 0 2px ${lc}`;
   APP.insertBefore(g,ED_);junk.push(g);
   const a=g.animate([
@@ -10271,5 +10274,200 @@ html body .settings-top::before,html body .settings-top::after{opacity:var(--ys,
 /* Thoát ghi chú: thanh công cụ thu về vẫn giữ nguyên blur kính (trước đây bị tắt trong lúc thu về nên chữ phía sau lộ ra rõ nét trong 1 thoáng) */
 html.ymorph-out body #ed #tools{-webkit-backdrop-filter:blur(26px) saturate(1.9)!important;backdrop-filter:blur(26px) saturate(1.9)!important}
 </style>
+<style id="yPcCardHover">
+/* ===== PC: bỏ hiệu ứng viền đỏ phát sáng của ghi chú đang chọn; thêm hiệu ứng phóng to khi rê chuột ===== */
+html[data-view=pc] .card.active,html[data-view=pc] .card.act-out{border-color:var(--line);box-shadow:var(--sh)}
+html[data-theme=dark][data-view=pc] .card.active,html[data-theme=dark][data-view=pc] .card.act-out{border-color:rgba(255,255,255,.12)}
+html[data-view=pc] .card.active::after,html[data-view=pc] .card.act-out::after{animation:none!important;box-shadow:none!important;will-change:auto!important}
+/* ngoài chế độ chọn nhiều: xoá hẳn lớp viền sáng (trong chế độ chọn nhiều ::after là ô tích nên giữ lại) */
+html[data-view=pc] #list:not(:has(#bulkbar:not([hidden]))) .card.active::after,
+html[data-view=pc] #list:not(:has(#bulkbar:not([hidden]))) .card.act-out::after{content:none!important;display:none!important}
+html[data-view=pc].y-lite .card.active::after{animation:none!important}
+
+@media(min-width:640px){
+ /* chừa chỗ cho thẻ phóng to, không bị cắt mép; vị trí thẻ giữ nguyên */
+ html[data-view=pc] #cards{padding-left:10px;padding-right:10px;margin-left:-8px;margin-right:-8px}
+ html[data-view=pc] #cards .card{position:relative;
+  transition:transform .42s cubic-bezier(.22,1,.36,1),box-shadow .42s cubic-bezier(.22,1,.36,1),border-color .3s ease,background-color .3s ease}
+}
+@media(min-width:640px) and (hover:hover){
+ html[data-view=pc]:not(.ystg-run) #cards .card:not(.ystg-hid):hover{
+  z-index:3;border-color:rgba(0,0,0,.16);
+  box-shadow:0 16px 38px rgba(20,24,40,.20),0 4px 12px rgba(20,24,40,.10)}
+ html[data-theme=dark][data-view=pc]:not(.ystg-run) #cards .card:not(.ystg-hid):hover{
+  border-color:rgba(255,255,255,.30);background:rgba(48,48,56,.9);
+  box-shadow:0 18px 42px rgba(0,0,0,.6),0 4px 12px rgba(0,0,0,.35)}
+}
+@media(min-width:640px) and (hover:hover) and (prefers-reduced-motion:no-preference){
+ html[data-view=pc]:not(.ystg-run) #cards .card:not(.ystg-hid):hover{transform:translateY(-2px) scale(1.03)}
+ html[data-view=pc]:not(.ystg-run) #cards .card:not(.ystg-hid):hover:active{transform:translateY(-1px) scale(1.012);transition-duration:.15s}
+}
+</style>
+<style id="yBgCSS">
+/* Đổi nền ghi chú (theo từng ghi chú: n.bg) */
+#ybgA,#ybgB{position:absolute;left:0;right:0;top:calc(-1*var(--sat,0px));bottom:calc(-1*var(--sab,0px));z-index:-1;pointer-events:none;opacity:0;transition:opacity .4s ease;background-repeat:no-repeat}
+#ybgA.on,#ybgB.on{opacity:1}
+#ed[data-ybg]{isolation:isolate;color:var(--ink);--bg:var(--ybgs)}
+#ed[data-ybt=dark]{--ink:#f3f6fc;--mut:rgba(226,233,248,.64);--line:rgba(255,255,255,.17);--sf:rgba(255,255,255,.09);--gl1:rgba(255,255,255,.2);--gl2:rgba(255,255,255,.06);--glb:rgba(255,255,255,.28);--yrc:rgba(255,255,255,.17);--yrd:rgba(255,255,255,.34);--rs:rgba(255,255,255,.1)}
+#ed[data-ybt=light]{--ink:#1c1c1e;--mut:#6f6f76;--line:rgba(0,0,0,.11);--sf:rgba(255,255,255,.55);--gl1:rgba(255,255,255,.62);--gl2:rgba(255,255,255,.2);--glb:rgba(255,255,255,.85);--yrc:rgba(110,120,140,.3);--yrd:rgba(110,120,140,.5);--rs:#fff0ef}
+#ed[data-ybg] #tools,#ed[data-ybg] #fmt{background:transparent}
+/* Sửa: thanh công cụ/định dạng phải theo tông của NỀN ghi chú, không theo theme app (trước đây app tối → thanh xám đục trên nền sáng) */
+html body #ed[data-ybg][data-ybt=light] #tools,html body #ed[data-ybg][data-ybt=light] #fmt{
+  background:linear-gradient(150deg,rgba(255,255,255,.80),rgba(255,255,255,.56))!important;border-color:rgba(255,255,255,.75)!important;
+  box-shadow:0 14px 38px rgba(40,50,80,.22),0 4px 14px rgba(0,0,0,.10),0 0 0 .5px rgba(60,66,90,.18),inset 0 1.5px 1px rgba(255,255,255,.95)!important}
+html body #ed[data-ybg][data-ybt=dark] #tools,html body #ed[data-ybg][data-ybt=dark] #fmt{
+  background:linear-gradient(150deg,rgba(255,255,255,.22),rgba(255,255,255,.08))!important;border-color:rgba(255,255,255,.28)!important;
+  box-shadow:0 14px 38px rgba(0,0,0,.40),0 4px 14px rgba(0,0,0,.25),0 0 0 .5px rgba(255,255,255,.12),inset 0 1.5px 1px rgba(255,255,255,.28)!important}
+html body #ed[data-ybg] #tools .fb,html body #ed[data-ybg] #fmti .fb{color:var(--ink)}
+html #ed[data-ybg] .pop{color:var(--ink);-webkit-backdrop-filter:blur(26px) saturate(1.9)!important;backdrop-filter:blur(26px) saturate(1.9)!important}
+html #ed[data-ybg][data-ybt=light] .pop{background:linear-gradient(150deg,rgba(255,255,255,.62),rgba(255,255,255,.38))!important;border-color:rgba(255,255,255,.75)!important;box-shadow:0 14px 38px rgba(40,50,80,.24),0 4px 14px rgba(0,0,0,.10),inset 0 1.5px 1px rgba(255,255,255,.95)!important}
+html #ed[data-ybg][data-ybt=dark] .pop{background:linear-gradient(150deg,rgba(255,255,255,.24),rgba(255,255,255,.09))!important;border-color:rgba(255,255,255,.28)!important;box-shadow:0 14px 38px rgba(0,0,0,.42),0 4px 14px rgba(0,0,0,.25),inset 0 1.5px 1px rgba(255,255,255,.28)!important}
+#ybgBar{position:absolute;left:0;right:0;bottom:0;z-index:9;display:flex;gap:12px;padding:12px 18px calc(14px + var(--sab,0px));overflow-x:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:rgba(var(--glw,255,255,255),.62);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border-radius:22px 22px 0 0;box-shadow:0 -6px 30px rgba(0,0,0,.14);transform:translateY(110%);visibility:hidden;transition:transform .34s cubic-bezier(.2,.8,.2,1),visibility 0s .34s}
+#ybgBar::-webkit-scrollbar{display:none}
+#ybgBar.open{transform:none;visibility:visible;transition:transform .34s cubic-bezier(.2,.8,.2,1)}
+.ybg-t{flex:none;width:64px;height:88px;border-radius:14px;padding:3px;border:2.5px solid transparent;background:none;transition:border-color .2s,transform .15s}
+.ybg-t:active{transform:scale(.95)}
+.ybg-t i{display:grid;place-items:center;width:100%;height:100%;border-radius:9px;box-shadow:inset 0 0 0 1px rgba(128,128,128,.3);background-repeat:no-repeat}
+.ybg-t.on{border-color:#f5b800}
+.ybg-t svg{width:26px;height:26px;stroke:#b9b9c0;fill:none;stroke-width:1.6;stroke-linecap:round}
+
+/* PC: sidebar theo nền ghi chú */
+html[data-view=pc][data-ybg-on] #list{border-radius:0 28px 28px 0!important}
+/* Thẻ ghi chú ở màn hình chính mang luôn nền của ghi chú (như Ghi chú Xiaomi) */
+html body #cards .card[data-ycb][data-ycb][data-ycb][data-ycb]{
+  background:var(--ycbg)!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;
+  color:var(--ink)!important;border-color:var(--ycl)!important;
+  box-shadow:0 6px 18px rgba(20,30,60,.16),inset 0 0 0 1px var(--ycl)!important}
+html body #cards .card[data-ycb][data-ycb][data-ycb][data-ycb] .card-main b{color:var(--ink)!important}
+html body #cards .card[data-ycb][data-ycb][data-ycb][data-ycb] .card-main .pv,html body #cards .card[data-ycb][data-ycb][data-ycb][data-ycb] .card-main small,html body #cards .card[data-ycb][data-ycb][data-ycb][data-ycb] .card-main .meta{color:var(--mut)!important}
+#cards .card[data-ycb=dark]{--ink:#f3f6fc;--mut:rgba(226,233,248,.72);--line:rgba(255,255,255,.17);--ycl:rgba(255,255,255,.16)}
+#cards .card[data-ycb=light]{--ink:#1c1c1e;--mut:#5f5f66;--line:rgba(0,0,0,.11);--ycl:rgba(0,0,0,.07)}
+/* PC: nền ghi chú là 2 lớp "sân khấu" trải kín dưới cả sidebar lẫn trang ghi chú (nên góc bo không bị trắng).
+   Chuyển ghi chú / thoát ghi chú: lớp mới hiện dần đè lên lớp cũ, hoặc nền mờ dần để lộ nền mặc định. */
+#ybsA,#ybsB{display:none}
+html[data-view=pc] #ybsA,html[data-view=pc] #ybsB{display:block;position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;background-repeat:no-repeat;background-size:100% 100%;transition:opacity .38s cubic-bezier(.3,0,.2,1);will-change:opacity}
+html[data-view=pc] #ybsA.on,html[data-view=pc] #ybsB.on{opacity:1}
+/* PC: nền nằm TRONG trang ghi chú (phóng to/thu nhỏ cùng trang như Stage Manager); khi thoát thì mờ dần thay vì biến mất */
+html[data-view=pc] #ed.off>#ybgA,html[data-view=pc] #ed.off>#ybgB{display:block!important}
+html[data-view=pc][data-ybg-on] #list{background:linear-gradient(160deg,rgba(255,255,255,.30),rgba(255,255,255,.16))!important;
+  -webkit-backdrop-filter:blur(34px) saturate(1.7)!important;backdrop-filter:blur(34px) saturate(1.7)!important;color:var(--ink)}
+html[data-view=pc][data-ybt-app=light] #list{--ink:#1c1c1e;--mut:#6f6f76;--line:rgba(0,0,0,.11);--sf:rgba(255,255,255,.55);--bg:rgba(255,255,255,.55);border-right-color:rgba(255,255,255,.5)!important}
+html[data-view=pc][data-ybt-app=dark] #list{--ink:#f3f6fc;--mut:rgba(226,233,248,.64);--line:rgba(255,255,255,.17);--sf:rgba(255,255,255,.09);--bg:rgba(255,255,255,.10);border-right-color:rgba(255,255,255,.18)!important;background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.05))!important}
+html[data-view=pc][data-ybg-on] #list .card{background:var(--bg)!important;border-color:var(--line)!important}
+html[data-view=pc][data-ybg-on] #list input,html[data-view=pc][data-ybg-on] #list .pill:not(.red){background:var(--sf)!important;color:var(--ink)!important;border-color:var(--line)!important}
+/* Nút thanh trên (quay lại / hoàn tác / làm lại / Canvas / ⋯): kính mờ GIỐNG thanh dock chức năng trong ghi chú */
+html body #ed>.top .ib:not(.red):not(#repImg):not(#canvasMode.on){
+  background:linear-gradient(150deg,rgba(255,255,255,.80),rgba(255,255,255,.56))!important;
+  border:1px solid rgba(255,255,255,.75)!important;
+  -webkit-backdrop-filter:blur(26px) saturate(1.9)!important;backdrop-filter:blur(26px) saturate(1.9)!important;
+  box-shadow:0 8px 22px rgba(40,50,80,.22),0 2px 8px rgba(0,0,0,.10),0 0 0 .5px rgba(60,66,90,.18),inset 0 1.5px 1px rgba(255,255,255,.95)!important}
+html[data-theme=dark] html body #ed>.top .ib:not(.red):not(#repImg):not(#canvasMode.on){
+  background:linear-gradient(150deg,rgba(60,60,68,.68),rgba(30,30,36,.58))!important;border-color:rgba(255,255,255,.2)!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.12),inset 0 1.5px 1px rgba(255,255,255,.22)!important}
+@media(prefers-color-scheme:dark){html:not([data-theme=light]) html body #ed>.top .ib:not(.red):not(#repImg):not(#canvasMode.on){
+  background:linear-gradient(150deg,rgba(60,60,68,.68),rgba(30,30,36,.58))!important;border-color:rgba(255,255,255,.2)!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.12),inset 0 1.5px 1px rgba(255,255,255,.22)!important}}
+/* có nền ghi chú: theo tông của NỀN (như dock), không theo theme app */
+html body #ed[data-ybg][data-ybt=light]>.top .ib:not(.red):not(#repImg):not(#canvasMode.on){
+  background:linear-gradient(150deg,rgba(255,255,255,.80),rgba(255,255,255,.56))!important;border-color:rgba(255,255,255,.75)!important;
+  box-shadow:0 8px 22px rgba(40,50,80,.20),0 2px 8px rgba(0,0,0,.10),0 0 0 .5px rgba(60,66,90,.18),inset 0 1.5px 1px rgba(255,255,255,.95)!important}
+html body #ed[data-ybg][data-ybt=dark]>.top .ib:not(.red):not(#repImg):not(#canvasMode.on){
+  background:linear-gradient(150deg,rgba(255,255,255,.22),rgba(255,255,255,.08))!important;border-color:rgba(255,255,255,.28)!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.40),0 2px 8px rgba(0,0,0,.25),0 0 0 .5px rgba(255,255,255,.12),inset 0 1.5px 1px rgba(255,255,255,.28)!important}
+</style>
+<script id="yBgJS">
+/* Đổi nền ghi chú: menu ⋮ → "Đổi nền" → dải nền cuộn ngang ở đáy, chọn là đổi ngay và lưu vào ghi chú (n.bg, tự đồng bộ cloud) */
+(()=>{const ed=document.getElementById('ed'),more=document.getElementById('more');if(!ed||!more)return;
+ const A=()=>window.yApp||{};
+ const enc=s=>'url("data:image/svg+xml,'+encodeURIComponent(s)+'")';
+ const svg=(vb,inner,par)=>'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+vb+'" preserveAspectRatio="'+(par||'xMidYMid slice')+'">'+inner+'</svg>';
+ let sd=7;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;
+ /* tán lá cọ */
+ const frond=(x,y,len,ang,fill,op)=>{let g='<g transform="translate('+x+' '+y+') rotate('+ang+')" fill="'+fill+'" opacity="'+op+'">';const N=15;
+  for(let i=1;i<=N;i++){const t=i/N,px=t*len,py=-t*t*len*.18,l=len*.3*Math.sin(Math.PI*Math.min(1,t*.85+.12));
+   for(const s of[-1,1])g+='<ellipse transform="translate('+px.toFixed(1)+' '+py.toFixed(1)+') rotate('+(s*(58-t*14)).toFixed(1)+') translate('+(l/2).toFixed(1)+' 0)" rx="'+(l/2).toFixed(1)+'" ry="'+(len*.022).toFixed(1)+'"/>'}
+  return g+'<path d="M0 0Q'+(len*.5)+' '+(-len*.08)+' '+len+' '+(-len*.18)+'" stroke="'+fill+'" stroke-width="'+(len*.012)+'" fill="none"/></g>'};
+ /* sen đá */
+ const rosette=(cx,cy,r,c1,c2,rot)=>{let g='<g transform="translate('+cx+' '+cy+') rotate('+(rot||0)+')">';
+  [[1,10,c1],[.74,8,c2],[.48,6,c1],[.26,5,c2]].forEach(([k,n,c],j)=>{for(let i=0;i<n;i++)g+='<ellipse transform="rotate('+(i*360/n+j*17)+') translate('+(r*k*.55).toFixed(1)+' 0)" rx="'+(r*k*.5).toFixed(1)+'" ry="'+(r*k*.21).toFixed(1)+'" fill="'+c+'" stroke="rgba(255,255,255,.4)" stroke-width="1.2"/>'});
+  return g+'</g>'};
+ const stars=(n,meteors)=>{let s='';for(let i=0;i<n;i++){const r=rnd();s+='<circle cx="'+(rnd()*400).toFixed(0)+'" cy="'+(rnd()*800).toFixed(0)+'" r="'+(.5+r*1.1).toFixed(1)+'" fill="#fff" opacity="'+(.25+rnd()*.6).toFixed(2)+'"/>'}
+  for(let i=0;i<meteors;i++){const x=rnd()*400,y=rnd()*600,l=30+rnd()*70;s+='<line x1="'+x.toFixed(0)+'" y1="'+y.toFixed(0)+'" x2="'+(x-l*.6).toFixed(0)+'" y2="'+(y+l*.8).toFixed(0)+'" stroke="#fff" stroke-opacity="'+(.18+rnd()*.3).toFixed(2)+'" stroke-width="1.1" stroke-linecap="round"/>'}return s};
+ const mtn='<polygon points="0,800 0,742 38,716 74,732 126,696 186,748 232,688 272,656 304,690 342,674 400,722 400,800" fill="#0a131f"/><polygon points="232,688 272,656 304,690 286,700 262,690 250,704" fill="#dbe7f1"/><polygon points="126,696 150,710 138,724 112,712" fill="#c7d6e3"/><polygon points="342,674 366,690 350,700 334,688" fill="#c7d6e3"/><polygon points="38,716 56,726 44,738 26,728" fill="#aebfce"/>';
+ const BG={
+  cream:['Kem lá cọ','light','253,238,180',enc(svg('400 800',frond(440,-20,430,122,'#bfa24a',.26)+frond(470,70,380,146,'#bfa24a',.2)+frond(-20,-30,300,52,'#bfa24a',.12)))+',linear-gradient(180deg,#fdeeb4,#fff6d8 55%,#fffaee)'],
+  mint:['Xanh ngọc','light','121,201,182',enc(svg('400 800',frond(-30,40,760,40,'#2f8d79',.34)+frond(430,160,700,150,'#2f8d79',.3)+frond(-20,520,640,-30,'#d4f5ec',.2)+frond(420,760,620,-150,'#d4f5ec',.22)))+',linear-gradient(180deg,#86d2bf,#5db7a3)'],
+  night:['Đêm sao','dark','11,42,107',enc(svg('400 800',stars(70,7)))+',linear-gradient(180deg,#0a2766,#0e48a6 55%,#1366cc)'],
+  noir:['Đen','dark','27,27,30',enc(svg('400 800','<defs><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><polygon points="215,0 390,0 330,300 120,270" fill="url(#b)"/>'))+',linear-gradient(180deg,#232326,#0b0b0c)'],
+  peak:['Núi đêm','dark','7,26,74',enc(svg('400 800',stars(40,9)+mtn,'xMidYMax slice'))+',linear-gradient(180deg,#071a4a 0,#0a3a6e 30%,#007890 64%,#2f8e9c 86%)'],
+  succ:['Sen đá','light','247,248,244',enc(svg('400 800',rosette(40,50,90,'#7db78a','#a9d6b0',10)+rosette(120,20,60,'#6aa87c','#9ccfa6',40)+rosette(10,150,55,'#8cc298','#b4dbba',0)+rosette(380,770,100,'#7db78a','#a9d6b0',25)+rosette(300,800,62,'#6aa87c','#9ccfa6',60)))+',linear-gradient(180deg,#f6f7f2,#fff)'],
+  rose:['Hồng đào','light','255,227,236','linear-gradient(160deg,#ffe3ec,#ffd1e0 50%,#ffeef3)'],
+  lav:['Tím nhạt','light','230,224,255','linear-gradient(160deg,#e6e0ff,#cfc4ff 55%,#efeaff)'],
+  sea:['Trời xanh','light','216,240,255','linear-gradient(180deg,#d8f0ff,#a8dcff 60%,#e8f7ff)'],
+  sunset:['Hoàng hôn','dark','43,16,85','linear-gradient(180deg,#2b1055 0,#7b2d8e 35%,#e8567a 72%,#ff9f6b 100%)'],
+  forest:['Rừng đêm','dark','14,42,34',enc(svg('400 800',frond(430,-20,520,125,'#9be3c4',.1)+frond(-20,420,560,-40,'#9be3c4',.08)))+',linear-gradient(180deg,#0e2a22,#14453a)']
+ };
+ const KEYS=Object.keys(BG);
+ const L=[document.createElement('div'),document.createElement('div')];L[0].id='ybgA';L[1].id='ybgB';L.forEach(l=>{l.setAttribute('aria-hidden','true');ed.insertBefore(l,ed.firstChild)});
+ const bar=document.createElement('div');bar.id='ybgBar';bar.setAttribute('role','listbox');bar.setAttribute('aria-label','Chọn nền ghi chú');
+ bar.innerHTML='<button type="button" class="ybg-t" data-k="" aria-label="Trắng mặc định"><i style="background:#fff"><svg viewBox="0 0 24 24"><path d="M6 6h12M6 11h12M6 16h8"/></svg></i></button>';
+ KEYS.forEach(k=>{const b=document.createElement('button');b.type='button';b.className='ybg-t';b.dataset.k=k;b.setAttribute('aria-label',BG[k][0]);const i=document.createElement('i');i.style.background=BG[k][3];i.style.backgroundSize='100% 100%';i.style.backgroundRepeat='no-repeat';b.appendChild(i);bar.appendChild(b)});
+ ed.appendChild(bar);
+ let cur='',ai=0;const pcOff=()=>document.documentElement.dataset.view==='pc'&&ed.classList.contains('off');
+ const mark=()=>bar.querySelectorAll('.ybg-t').forEach(b=>{const on=b.dataset.k===cur;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
+ let apply=(k,inst)=>{k=BG[k]?k:'';
+  if(!k){ed.removeAttribute('data-ybg');ed.removeAttribute('data-ybt');ed.style.removeProperty('--ybgs');ed.style.removeProperty('--glw');L.forEach(l=>l.classList.remove('on'));cur='';mark();return}
+  const d=BG[k];
+  if(k!==cur||inst){ai^=1;const n=L[ai],o=L[ai^1];if(inst)n.style.transition=o.style.transition='none';
+   n.style.background=d[3];n.style.backgroundSize='100% 100%';n.style.backgroundRepeat='no-repeat';if(pcOff())ed.dataset.ypend='1';else n.classList.add('on');o.classList.remove('on');
+   if(inst)requestAnimationFrame(()=>requestAnimationFrame(()=>{n.style.transition=o.style.transition=''}))}
+  ed.setAttribute('data-ybg',k);ed.setAttribute('data-ybt',d[1]);ed.style.setProperty('--glw',d[2]);ed.style.setProperty('--ybgs','rgb('+d[2]+')');cur=k;mark()};
+ /* PC: sidebar ghi chú ăn theo nền ghi chú đang mở (kính mờ cùng tông, không còn lạc quẻ) */
+ const root=document.documentElement;
+ /* 2 lớp nền "sân khấu" (PC): lớp mới hiện dần đè lên lớp cũ; thoát ghi chú thì nền mờ dần */
+ const app=document.getElementById('app'),S=[document.createElement('div'),document.createElement('div')];S[0].id='ybsA';S[1].id='ybsB';
+ let si=0,stT=0;S.forEach(l=>{l.setAttribute('aria-hidden','true');l.dataset.k='';app&&app.insertBefore(l,app.firstChild)});
+ const stage=k=>{if(!app)return;const top=S[si];
+  if(!k){clearTimeout(stT);S.forEach(l=>l.classList.remove('on'));return}
+  if(top.dataset.k===k){top.classList.add('on');return}
+  const o=top,n=S[si^1];si^=1;
+  n.dataset.k=k;n.style.background=BG[k][3];n.style.backgroundSize='100% 100%';n.style.backgroundRepeat='no-repeat';
+  /* lớp mới nằm SAU lớp cũ trong DOM (z-index đều = 0) nên luôn ở trên lớp cũ nhưng không bao giờ đè lên trang ghi chú */
+  o.after(n);
+  void n.offsetWidth;n.classList.add('on');
+  clearTimeout(stT);stT=setTimeout(()=>{if(S[si]===n)o.classList.remove('on')},460)};
+ const syncApp=()=>{const k=cur,on=k&&BG[k]&&!ed.classList.contains('off');
+  if(root.dataset.view==='pc'){
+   if(!on)L.forEach(l=>l.classList.remove('on'));
+   else{const n=L[ai];if(!n.classList.contains('on')){n.style.transition='none';n.classList.add('on');void n.offsetWidth;requestAnimationFrame(()=>requestAnimationFrame(()=>{n.style.transition=''}))}}
+  }
+  stage(on?k:'');
+  if(!on){root.removeAttribute('data-ybg-on');root.removeAttribute('data-ybt-app');root.style.removeProperty('--ybimg');return}
+  root.setAttribute('data-ybg-on',k);root.setAttribute('data-ybt-app',BG[k][1]);root.style.setProperty('--ybimg',BG[k][3])};
+ new MutationObserver(syncApp).observe(ed,{attributes:true,attributeFilter:['class']});
+ const apply0=apply;apply=(k,inst)=>{apply0(k,inst);syncApp()};
+ window.yBgApply=(k,inst)=>apply(k,inst);
+ const isOpen=()=>bar.classList.contains('open');
+ const close=()=>{bar.classList.remove('open')};
+ const open=()=>{if(!(A().S&&A().S.cur))return;mark();bar.classList.add('open');const on=bar.querySelector('.on');if(on)bar.scrollLeft=on.offsetLeft-(bar.clientWidth-on.offsetWidth)/2};
+ bar.addEventListener('click',e=>{const b=e.target.closest('.ybg-t');if(!b)return;const n=A().S&&A().S.cur;if(!n)return;const k=b.dataset.k;apply(k);n.bg=k;A().save&&A().save();tag()});
+ bar.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){bar.scrollLeft+=e.deltaY;e.preventDefault()}},{passive:false});
+ document.addEventListener('pointerdown',e=>{if(isOpen()&&!bar.contains(e.target)&&!(e.target.closest&&e.target.closest('#more,#mm')))close()},true);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&isOpen())close()});
+ new MutationObserver(()=>{if(ed.classList.contains('off'))close()}).observe(ed,{attributes:true,attributeFilter:['class']});
+ const btn=document.createElement('button');btn.id='mBg';btn.type='button';btn.textContent='Đổi nền';
+ const ref=document.getElementById('mRule');ref?ref.after(btn):more.prepend(btn);
+ btn.addEventListener('click',()=>{try{A().closePops?A().closePops():(more.hidden=true)}catch(e){more.hidden=true}open()});
+ /* gắn nền của từng ghi chú lên thẻ ở danh sách */
+ const cardsBox=document.getElementById('cards');
+ const tag=()=>{const st=A().S;if(!st||!st.notes||!cardsBox)return;
+  cardsBox.querySelectorAll('.card[data-nid]').forEach(c=>{const n=st.notes.find(x=>String(x.id)===c.dataset.nid),d=n&&BG[n.bg];
+   if(d){if(c.dataset.ycb!==d[1])c.dataset.ycb=d[1];c.style.setProperty('--ycbg',d[3])}
+   else if(c.dataset.ycb){c.removeAttribute('data-ycb');c.style.removeProperty('--ycbg')}})};
+ if(cardsBox){new MutationObserver(tag).observe(cardsBox,{childList:true});tag()}
+ window.yBgTag=tag;
+ window.yBg={open,close,isOpen};
+})();
+</script>
 </body></html>
 <!-- yume18.3 -->
