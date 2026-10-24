@@ -2385,8 +2385,8 @@ html body #folderbar[hidden]{display:none!important}
    <small>Giao diện PC cần màn hình rộng từ 640px trở lên (máy tính, hoặc xoay ngang thiết bị).</small>
   </div>
   <div class="setting-card">
-   <div><div class="setting-title">Hiệu ứng &amp; hiệu năng</div><div class="setting-sub">Tự động: app tự giảm hiệu ứng nặng khi máy yếu hoặc bị giật. Mượt: dừng nền động và quầng sáng (vẫn giữ kính mờ). Đầy đủ: giữ toàn bộ hiệu ứng.</div></div>
-   <div class="seg" id="fxSeg" style="grid-template-columns:repeat(3,1fr)"><button data-fx="auto">Tự động</button><button data-fx="lite">Mượt</button><button data-fx="full">Đầy đủ</button></div>
+   <div><div class="setting-title">Hiệu ứng &amp; hiệu năng</div><div class="setting-sub">Giảm C.Động: tắt mọi hiệu ứng chuyển động để thao tác mượt nhất. Mượt: dừng nền động và quầng sáng (vẫn giữ kính mờ). Đầy đủ: giữ toàn bộ hiệu ứng.</div></div>
+   <div class="seg" id="fxSeg" style="grid-template-columns:repeat(3,1fr)"><button data-fx="calm">Giảm C.Động</button><button data-fx="lite">Mượt</button><button data-fx="full">Đầy đủ</button></div>
   </div>
   <div class="setting-card">
    <div><div class="setting-title">Hiệu ứng nhập liệu</div><div class="setting-sub">Con trỏ trượt mượt, chữ mới hiện nét dần, chữ bị xóa tan thành bụi. Áp dụng cho mọi ô nhập (tiêu đề, nội dung, tìm kiếm, ô hỏi AI…).</div></div>
@@ -7052,31 +7052,26 @@ html body #ipPick.open{will-change:auto!important}
 html body .pop button,html body .yb-pop *,html body .yb-cs *,html body #dlg .dlg-card *,html body #ipPick .ip-sheet *,html body #aiPick .aq-card *,html body #imgMenu *,html body #moveBar *,html body #yopt .yo-sh *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 </style>
 
+<style id="yCalmCSS">
+/* Giảm C.Động: tắt MỌI animation/transition bằng cách rút thời lượng về ~0 (sự kiện animationend/transitionend vẫn chạy nên logic của app không bị kẹt). Không sửa code animation của chế độ khác. */
+html.y-calm.y-calm *,html.y-calm.y-calm *::before,html.y-calm.y-calm *::after{animation-duration:.001ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0s!important;scroll-behavior:auto!important}
+</style>
 <script id="yPerfJS">
 (()=>{
  const R=document.documentElement,K='yume.fx',KA='yume.fxauto';
  const g=k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}},st=(k,v)=>{try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}};
- const lowEnd=()=>(navigator.deviceMemory&&navigator.deviceMemory<=4)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4);
- const mode=()=>{const m=g(K);return m==='lite'||m==='full'?m:'auto'};
- const isLite=()=>{const m=mode();return m==='lite'||(m==='auto'&&(g(KA)==='1'||lowEnd()))};
- const apply=()=>{R.classList.toggle('y-lite',isLite());document.querySelectorAll('#fxSeg button').forEach(b=>b.classList.toggle('on',b.dataset.fx===mode()))};
+ st(KA,'');/* bỏ cờ tự động cũ */
+ const mode=()=>{const m=g(K);return m==='lite'||m==='calm'?m:'full'};
+ const apply=()=>{const m=mode();R.classList.toggle('y-lite',m==='lite');R.classList.toggle('y-calm',m==='calm');
+  document.querySelectorAll('#fxSeg button').forEach(b=>b.classList.toggle('on',b.dataset.fx===m))};
  apply();
  document.addEventListener('visibilitychange',()=>R.classList.toggle('y-idle',document.hidden));
- /* tự đo FPS khi có animation chạy; giật 2 lần liên tiếp thì chuyển sang chế độ Mượt */
- let busy=false,strikes=0,lastRun=0;
- const watch=()=>{
-  const now=performance.now();
-  if(busy||mode()!=='auto'||isLite()||now-lastRun<4000||document.hidden)return;
-  busy=true;lastRun=now;let last=now,n=0,slow=0;const t0=now;
-  const tick=t=>{const d=t-last;last=t;if(!document.hidden&&d<250){n++;if(d>26)slow++}
-   if(t-t0<1500)requestAnimationFrame(tick);
-   else{busy=false;if(n>=25&&slow/n>.3){if(++strikes>=2){st(KA,'1');apply();if(window.toast)try{toast('Đã bật chế độ Mượt để app chạy trơn hơn')}catch(e){}}}else strikes=0}};
-  requestAnimationFrame(tick)};
- document.addEventListener('animationstart',watch,true);
- document.addEventListener('transitionrun',watch,true);
+ /* animation chạy bằng JS (Web Animations): ở chế độ Giảm C.Động cho chạy 1ms */
+ if(Element.prototype.animate&&!Element.prototype.animate._calm){const oa=Element.prototype.animate;
+  const f=function(k,o){if(R.classList.contains('y-calm'))o=(o==null||typeof o==='number')?{duration:1}:Object.assign({},o,{duration:1,delay:0,endDelay:0,iterations:1});return oa.call(this,k,o)};f._calm=1;Element.prototype.animate=f}
  document.querySelectorAll('#fxSeg button').forEach(b=>b.addEventListener('click',()=>{
-  const v=b.dataset.fx;st(K,v==='auto'?'':v);if(v!=='lite')st(KA,'');strikes=0;apply();
-  if(window.toast)try{toast(v==='lite'?'Chế độ Mượt: giữ kính mờ, tắt quầng sáng động để đạt 60–120 FPS':v==='full'?'Chế độ Đầy đủ: giữ toàn bộ hiệu ứng':'Chế độ Tự động')}catch(e){}}));
+  const v=b.dataset.fx;st(K,v==='full'?'':v);apply();
+  if(window.toast)try{toast(v==='calm'?'Giảm C.Động: đã tắt mọi hiệu ứng chuyển động':v==='lite'?'Chế độ Mượt: giữ kính mờ, tắt quầng sáng động để đạt 60–120 FPS':'Chế độ Đầy đủ: giữ toàn bộ hiệu ứng')}catch(e){}}));
  const so=document.getElementById('settingsOpen');if(so)so.addEventListener('click',apply);
 })();
 </script>
@@ -10412,6 +10407,28 @@ html[data-ybt-app=dark] body #recov .rv-bar button:not(.arm),html[data-ybt-app=d
 html[data-ybt-app=dark] body #recov .rv-grab{background:rgba(255,255,255,.22)}
 #recov.on{background:rgba(10,14,28,.26)}
 </style>
+<style id="yBgPerf2">
+/* ===== TỐI ƯU nền ghi chú (PE / điện thoại / PC) ===== */
+/* nền toàn màn hình: KHÔNG dùng background-attachment:fixed (rất nặng khi cuộn trên mobile) */
+html[data-ybg-open]:not([data-view=pc]),html[data-ybg-open]:not([data-view=pc]) body{background-attachment:scroll!important}
+/* lớp nền: tách lớp compositor riêng, bitmap được cache, không bị vẽ lại khi nội dung cuộn/gõ */
+#ybgA,#ybgB,html[data-view=pc] #ybsA,html[data-view=pc] #ybsB{transform:translateZ(0);backface-visibility:hidden;contain:strict;will-change:opacity}
+#ybgA:not(.on),#ybgB:not(.on){visibility:hidden;transition:opacity .4s ease,visibility 0s .4s}
+#ybgA.on,#ybgB.on{visibility:visible;transition:opacity .4s ease}
+/* màn hình cảm ứng: nút nhỏ & thanh công cụ dùng kính nhẹ hơn (blur nhỏ, bỏ ở nút nhỏ) để cuộn/gõ không giật */
+@media(hover:none),(pointer:coarse),(max-width:640px){
+ html body #ed[data-ybg]>.top .ib:not(.red):not(#repImg):not(#canvasMode.on){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+ html body #ed[data-ybg][data-ybt=light]>.top .ib:not(.red):not(#repImg):not(#canvasMode.on){background:rgba(255,255,255,.78)!important}
+ html body #ed[data-ybg][data-ybt=dark]>.top .ib:not(.red):not(#repImg):not(#canvasMode.on){background:rgba(70,78,104,.55)!important}
+ html body #ed[data-ybg] #tools,html body #ed[data-ybg] #fmt{-webkit-backdrop-filter:blur(14px) saturate(1.5)!important;backdrop-filter:blur(14px) saturate(1.5)!important}
+ html #ed[data-ybg] .pop{-webkit-backdrop-filter:blur(16px) saturate(1.5)!important;backdrop-filter:blur(16px) saturate(1.5)!important}
+ html body #ed[data-ybg] #clk,html body #ed[data-ybg] #recpill{-webkit-backdrop-filter:blur(14px) saturate(1.5)!important;backdrop-filter:blur(14px) saturate(1.5)!important}
+}
+/* PC: giảm bán kính blur của sidebar & nút trên khi có nền ghi chú */
+html[data-view=pc][data-ybg-on] #list{-webkit-backdrop-filter:blur(22px) saturate(1.5)!important;backdrop-filter:blur(22px) saturate(1.5)!important}
+html[data-view=pc] #ed[data-ybg]>.top .ib:not(.red):not(#repImg):not(#canvasMode.on){-webkit-backdrop-filter:blur(16px) saturate(1.5)!important;backdrop-filter:blur(16px) saturate(1.5)!important}
+@media(prefers-reduced-motion:reduce){#ybgA,#ybgB{transition:none!important}}
+</style>
 <script id="yBgJS">
 /* Đổi nền ghi chú: menu ⋮ → "Đổi nền" → dải nền cuộn ngang ở đáy, chọn là đổi ngay và lưu vào ghi chú (n.bg, tự đồng bộ cloud) */
 (()=>{const ed=document.getElementById('ed'),more=document.getElementById('more');if(!ed||!more)return;
@@ -10445,6 +10462,26 @@ html[data-ybt-app=dark] body #recov .rv-grab{background:rgba(255,255,255,.22)}
   forest:['Rừng đêm','dark','14,42,34',enc(svg('400 800',frond(430,-20,520,125,'#9be3c4',.1)+frond(-20,420,560,-40,'#9be3c4',.08)))+',linear-gradient(180deg,#0e2a22,#14453a)']
  };
  const KEYS=Object.keys(BG);
+ /* TỐI ƯU: nền SVG phức tạp → dựng sẵn thành ảnh bitmap 1 lần (webp), dùng lại ở mọi lớp/thẻ → cuộn/gõ/mở ghi chú mượt hơn */
+ const SVGSRC={},RB={};KEYS.forEach(k=>SVGSRC[k]=BG[k][3]);
+ const rsz=()=>{const dpr=Math.min(window.devicePixelRatio||1,1.5),w=Math.max(1,Math.round(innerWidth*dpr)),h=Math.max(1,Math.round(innerHeight*dpr)),f=Math.min(1,1280/Math.max(w,h));return[Math.round(w*f),Math.round(h*f)]};
+ let RSZ=rsz(),rgen=0;
+ const rasterOne=k=>new Promise(res=>{const m=SVGSRC[k].match(/^url\("(data:image\/svg[^"]+)"\)/);if(!m||!window.HTMLCanvasElement)return res(null);
+  const im=new Image();im.onload=()=>{try{const[w,h]=RSZ,c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);
+   c.toBlob(b=>res(b?URL.createObjectURL(b):null),'image/webp',.85)}catch(e){res(null)}};im.onerror=()=>res(null);im.src=m[1]});
+ const refreshBg=()=>{try{
+  [L[0],L[1]].forEach(l=>{const k=l.dataset.k;if(k&&BG[k]){l.style.background=BG[k][3];l.style.backgroundSize='100% 100%';l.style.backgroundRepeat='no-repeat'}});
+  S.forEach(l=>{const k=l.dataset.k;if(k&&BG[k]){l.style.background=BG[k][3];l.style.backgroundSize='100% 100%';l.style.backgroundRepeat='no-repeat'}});
+  bar.querySelectorAll('.ybg-t[data-k]').forEach(b=>{const k=b.dataset.k,i=b.firstChild;if(k&&BG[k]&&i){i.style.background=BG[k][3];i.style.backgroundSize='100% 100%';i.style.backgroundRepeat='no-repeat'}});
+  if(typeof tag==='function')tag();
+  if(cur&&BG[cur]&&root.hasAttribute('data-ybg-on'))root.style.setProperty('--ybimg',BG[cur][3])}catch(e){}};
+ const rasterAll=async(first)=>{const g=++rgen,ks=KEYS.slice();if(first&&BG[first]){ks.splice(ks.indexOf(first),1);ks.unshift(first)}
+  for(const k of ks){if(g!==rgen)return;const u=await rasterOne(k);if(g!==rgen){if(u)URL.revokeObjectURL(u);return}
+   if(u){const old=RB[k];RB[k]=u;const src=SVGSRC[k],e=src.indexOf('")')+2;BG[k][3]='url("'+u+'")'+src.slice(e);if(old)setTimeout(()=>URL.revokeObjectURL(old),3000);refreshBg()}
+   await new Promise(r=>setTimeout(r,120))}};
+ let rT=0;const kick=f=>{clearTimeout(rT);rT=setTimeout(()=>{const n=rsz();if(f||Math.abs(n[0]-RSZ[0])>RSZ[0]*.12||Math.abs(n[1]-RSZ[1])>RSZ[1]*.12){RSZ=n;rasterAll(cur)}},f?0:600)};
+ addEventListener('resize',()=>kick(0),{passive:true});
+ (window.requestIdleCallback||(f=>setTimeout(f,400)))(()=>kick(1));
  const L=[document.createElement('div'),document.createElement('div')];L[0].id='ybgA';L[1].id='ybgB';L.forEach(l=>{l.setAttribute('aria-hidden','true');ed.insertBefore(l,ed.firstChild)});
  const bar=document.createElement('div');bar.id='ybgBar';bar.setAttribute('role','listbox');bar.setAttribute('aria-label','Chọn nền ghi chú');
  bar.innerHTML='<button type="button" class="ybg-t" data-k="" aria-label="Trắng mặc định"><i style="background:#fff"><svg viewBox="0 0 24 24"><path d="M6 6h12M6 11h12M6 16h8"/></svg></i></button>';
@@ -10456,7 +10493,7 @@ html[data-ybt-app=dark] body #recov .rv-grab{background:rgba(255,255,255,.22)}
   if(!k){ed.removeAttribute('data-ybg');ed.removeAttribute('data-ybt');ed.style.removeProperty('--ybgs');ed.style.removeProperty('--glw');L.forEach(l=>l.classList.remove('on'));cur='';mark();return}
   const d=BG[k];
   if(k!==cur||inst){ai^=1;const n=L[ai],o=L[ai^1];if(inst)n.style.transition=o.style.transition='none';
-   n.style.background=d[3];n.style.backgroundSize='100% 100%';n.style.backgroundRepeat='no-repeat';if(pcOff())ed.dataset.ypend='1';else n.classList.add('on');o.classList.remove('on');
+   n.dataset.k=k;n.style.background=d[3];n.style.backgroundSize='100% 100%';n.style.backgroundRepeat='no-repeat';if(pcOff())ed.dataset.ypend='1';else n.classList.add('on');o.classList.remove('on');
    if(inst)requestAnimationFrame(()=>requestAnimationFrame(()=>{n.style.transition=o.style.transition=''}))}
   ed.setAttribute('data-ybg',k);ed.setAttribute('data-ybt',d[1]);ed.style.setProperty('--glw',d[2]);ed.style.setProperty('--ybgs','rgb('+d[2]+')');cur=k;mark()};
  /* PC: sidebar ghi chú ăn theo nền ghi chú đang mở (kính mờ cùng tông, không còn lạc quẻ) */
